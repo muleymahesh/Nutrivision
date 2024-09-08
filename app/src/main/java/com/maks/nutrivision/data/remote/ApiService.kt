@@ -10,5 +10,5 @@ interface ApiService {
     @POST("newapi.php")
     suspend fun getProducts(@Body request: RequestParam): ProductResonse
     @POST("newapi.php")
-    suspend fun getBanners(requestParam: RequestParam): BannerResponse
+    suspend fun getBanners(@Body requestParam: RequestParam): BannerResponse
 }

@@ -6,13 +6,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.maks.nutrivision.R
 import com.maks.nutrivision.ui.common.Screen
@@ -24,7 +28,7 @@ fun SplashScreen(navController: NavController){
         delay(3000)
 
         navController.popBackStack()
-        navController.navigate(Screen.Main.route)
+        navController.navigate(Screen.Dashboard.route)
     }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -35,6 +39,10 @@ fun SplashScreen(navController: NavController){
     ) {
 
 
-        Image(painter = painterResource(id = R.drawable.ic_launcher_foreground), contentDescription = null)
-    }
+        Text(
+            text = stringResource(R.string.app_name),
+            color = Color.Green,
+            fontSize = 35.sp,
+            fontWeight = FontWeight.Bold,
+        )    }
 }

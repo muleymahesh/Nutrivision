@@ -65,17 +65,25 @@ dependencies {
     implementation(libs.androidx.material3)
     //hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
+    implementation(libs.androidx.runtime.livedata)
+    implementation("androidx.room:room-runtime:2.5.2")
+    implementation("androidx.room:room-ktx:2.5.2")
+    kapt("androidx.room:room-compiler:2.5.2")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
     kapt ("androidx.hilt:hilt-compiler:1.0.0-alpha01")
     implementation ("androidx.hilt:hilt-navigation-compose:1.1.0-alpha01")
     implementation ("androidx.hilt:hilt-navigation-fragment:1.0.0")
+    implementation ("com.google.accompanist:accompanist-pager:0.22.0-rc")
 
     //Navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.compose.material:material:1.7.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
     //retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.11.0")
 
     // Coroutines
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
