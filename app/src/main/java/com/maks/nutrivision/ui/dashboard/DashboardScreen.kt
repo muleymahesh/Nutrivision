@@ -59,6 +59,7 @@ import com.maks.nutrivision.R
 import com.maks.nutrivision.data.entities.Banner
 import com.maks.nutrivision.data.entities.Category
 import com.maks.nutrivision.ui.ProductViewModel
+import com.maks.nutrivision.ui.common.BottomBar
 import com.maks.nutrivision.ui.common.Screen
 import com.maks.nutrivision.ui.theme.AppBg
 import com.maks.nutrivision.ui.theme.DarkTextColor
@@ -87,6 +88,8 @@ fun DashboardScreen(navController: NavHostController,
                 )
             }
         },
+        bottomBar = { BottomBar(navController = navController) }
+
     ) { contentPadding ->
         Box(
             Modifier

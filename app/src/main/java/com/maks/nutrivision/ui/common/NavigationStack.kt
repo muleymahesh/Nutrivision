@@ -6,9 +6,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.maks.nutrivision.ui.SplashScreen
+import com.maks.nutrivision.ui.cart.CartScreen
 import com.maks.nutrivision.ui.dashboard.DashboardScreen
 import com.maks.nutrivision.ui.detail.DetailScreen
 import com.maks.nutrivision.ui.home.HomeScreen
+import com.maks.nutrivision.ui.user.LoginScreen
+import com.maks.nutrivision.ui.user.ProfileScreen
+import com.maks.nutrivision.ui.user.SignupScreen
 
 @Composable
 fun NavigationStack() {
@@ -41,8 +45,22 @@ fun NavigationStack() {
         ) {
             DetailScreen(text = it.arguments?.getString("product"))
         }
+        composable(route = Screen.Cart.route) {
+            CartScreen(navController = navController)
+        }
+
+        composable(route = Screen.Login.route) {
+            LoginScreen(navController = navController)
+        }
+        composable(route = Screen.Register.route) {
+            SignupScreen(navController = navController)
+        }
+        composable(route = Screen.Profile.route) {
+            ProfileScreen(navController = navController)
+        }
     }
 }
+
 
 
 

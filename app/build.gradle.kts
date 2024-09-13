@@ -66,9 +66,18 @@ dependencies {
     //hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
     implementation(libs.androidx.runtime.livedata)
-    implementation("androidx.room:room-runtime:2.5.2")
-    implementation("androidx.room:room-ktx:2.5.2")
-    kapt("androidx.room:room-compiler:2.5.2")
+
+    val roomVersion = "2.6.1"
+    val lifecycleVersion = "2.2.0"
+
+    // Room and Architectural Components
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.legacy:legacy-support-v4:1.0.0")
+    implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
+    implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:$roomVersion")
+
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
     kapt ("androidx.hilt:hilt-compiler:1.0.0-alpha01")
     implementation ("androidx.hilt:hilt-navigation-compose:1.1.0-alpha01")
@@ -79,24 +88,28 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.compose.material:material:1.7.0")
     implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation (libs.accompanist.systemuicontroller)
+    implementation ("androidx.compose.material:material-icons-extended:1.7.0")
 
     //retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("com.squareup.okhttp3:logging-interceptor:4.11.0")
 
-    // Coroutines
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1")
-
-    // Coroutine Lifecycle Scopes
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
     // Coil
     implementation("io.coil-kt:coil-compose:1.4.0")
 
+
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    // New Material Design
+    implementation("com.google.android.material:material:1.12.0")
+
     // ViewModel
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
+    implementation("androidx.lifecycle:lifecycle-extensions:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
+    kapt("androidx.lifecycle:lifecycle-compiler:$lifecycleVersion")
 
     // Retrofit2
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")

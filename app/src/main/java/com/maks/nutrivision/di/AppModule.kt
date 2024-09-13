@@ -4,15 +4,17 @@ import android.content.Context
 import androidx.room.Room
 import com.maks.nutrivision.data.local.AppDatabase
 import com.maks.nutrivision.data.local.ProductDao
+import com.maks.nutrivision.data.local.UserDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
-@InstallIn(ViewModelComponent::class)
+@InstallIn(SingletonComponent::class)
 class AppModule {
 
     @Provides
@@ -28,5 +30,9 @@ class AppModule {
     @Provides
     fun provideProductDao(database: AppDatabase): ProductDao {
         return database.productDao()
+    }
+    @Provides
+    fun provideUserDao(database: AppDatabase): UserDao {
+        return database.userDao()
     }
 }

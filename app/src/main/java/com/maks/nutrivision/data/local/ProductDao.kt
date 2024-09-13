@@ -1,31 +1,37 @@
 package com.maks.nutrivision.data.local
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Update
 import com.maks.nutrivision.data.entities.Product
 
 
 @Dao
 interface ProductDao {
+    //create Product
     @Insert
-    suspend fun insert(product: Product)
+    suspend fun insertProduct(product: Product)
 
-    @Query("SELECT * FROM Product")
-    suspend fun getAllProducts(): List<Product>?
+    //read Products
+    @Query("SELECT * FROM products")
+    fun getAllProducts(): List<Product>
 
-    @Query("SELECT * from Product WHERE p_id= :id")
-    fun getItemById(id: String): List<Product>?
+    //update Product
+    @Update
+    suspend fun updateProduct(product: Product)
 
-    @Query("UPDATE Product SET count = count + 1 WHERE p_id = :id")
-    suspend fun  updateQuantity(id: String)
+    //delete Product
+    @Delete
+    suspend fun deleteProduct(product: Product)
 
-    suspend fun insertOrUpdate( item:Product): Boolean {
-        val itemsFromDB = getItemById(item.p_id)
-        if (itemsFromDB != null && itemsFromDB.isEmpty())
-                insert(item)
-            else
-                updateQuantity(item.p_id)
-    return true
-    }
+    //deleteAll
+    @Query("DELETE FROM products")
+    suspend fun deleteAll()
+
+    @Query("UPDATE products SET count = count + 1 WHERE p_id = :id")
+    suspend fun updateQuantity( id:String)
 }

@@ -1,8 +1,14 @@
 package com.maks.nutrivision.di
 
-import com.maks.nutrivision.data.ProductRepository
-import com.maks.nutrivision.data.ProductRepositoryImpl
+import com.maks.nutrivision.data.repositories.ProductRepository
+import com.maks.nutrivision.data.repositories.ProductRepositoryImpl
+import com.maks.nutrivision.data.repositories.CartRepository
+import com.maks.nutrivision.data.repositories.CartRepositoryImpl
+import com.maks.nutrivision.data.local.ProductDao
+import com.maks.nutrivision.data.local.UserDao
 import com.maks.nutrivision.data.remote.ApiService
+import com.maks.nutrivision.data.repositories.AuthRepository
+import com.maks.nutrivision.data.repositories.AuthRepositoryImpl
 import com.maks.nutrivision.utils.Constants
 import dagger.Module
 import dagger.Provides
@@ -45,5 +51,16 @@ object RetrofitModule {
     @ViewModelScoped
     fun provideProductRepository(gameService: ApiService): ProductRepository {
         return ProductRepositoryImpl(gameService)  // Or however you create an instance of GameRepository
+    }
+    @Provides
+    @ViewModelScoped
+    fun provideCartRepository( productDao: ProductDao): CartRepository {
+        return CartRepositoryImpl(productDao)  // Or however you create an instance of GameRepository
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideAuthRepository( gameService: ApiService, userDao: UserDao): AuthRepository {
+        return AuthRepositoryImpl(gameService,userDao)  // Or however you create an instance of GameRepository
     }
 }

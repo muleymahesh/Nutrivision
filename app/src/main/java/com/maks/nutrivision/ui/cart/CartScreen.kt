@@ -1,7 +1,8 @@
-package com.maks.nutrivision.ui.home
-import android.annotation.SuppressLint
+package com.maks.nutrivision.ui.cart
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,30 +13,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,34 +42,29 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.google.gson.Gson
-import com.maks.nutrivision.ui.ProductViewModel
 import com.maks.nutrivision.R
 import com.maks.nutrivision.data.entities.Product
 import com.maks.nutrivision.ui.common.BottomBar
-import com.maks.nutrivision.ui.common.bottomNavItems
 import com.maks.nutrivision.ui.theme.AppBg
 import com.maks.nutrivision.ui.theme.DarkTextColor
 import com.maks.nutrivision.ui.theme.Primary
 
-@SuppressLint("StateFlowValueCalledInComposition")
+
 @Composable
-fun HomeScreen(navController: NavHostController,
-               cat_id: String? = null,
-               viewModel: ProductViewModel = hiltViewModel()) {
-LaunchedEffect(key1 = true) {
-    viewModel.getProducts(cat_id)
-}
+fun CartScreen(navController: NavHostController ,
+               viewModel: CartViewModel = hiltViewModel()
+) {
+    LaunchedEffect(key1 = true) {
+        viewModel.getCartProducts()
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -89,7 +81,9 @@ LaunchedEffect(key1 = true) {
                 )
             }
         },
-bottomBar = { BottomBar(navController = navController) }
+        bottomBar = { OutlinedButton(onClick = { /*TODO*/ },Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(backgroundColor = Primary)) {
+            Text(text = "Checkout" , color = Color.White)
+        } }
     ) { contentPadding ->
         Box(
             Modifier
@@ -100,21 +94,26 @@ bottomBar = { BottomBar(navController = navController) }
                 .padding(contentPadding)
         ) {
 
-            val state = viewModel.state.value
-            MainContent(navController, state.products, {viewModel.addToCart(it)})
-            if (state.error.isNotBlank()) {
-                Text(
-                    text = state.error,
-                    color = MaterialTheme.colors.error,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .align(Alignment.Center)
+            val state = viewModel.cart.observeAsState()
+            state.value?.let {
+                if (it.isNullOrEmpty())
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .align(Alignment.Center)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.Center) {
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = "Your Cart is empty. Add some products to proceed to checkout",
+                            style = MaterialTheme.typography.h6,
+                            color = DarkTextColor,
+                        )
+                    }
+                    else
+                MainContent(navController, it,
+                    {viewModel.deleteProduct(it) }
                 )
-            }
-            if (state.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         }
     }
@@ -125,29 +124,27 @@ bottomBar = { BottomBar(navController = navController) }
 fun MainContent(
     navController: NavController,
     productList: List<Product>,
-    addToCart: (product: Product) -> Unit = {}
+    delete: (product: Product) -> Unit = {}
 ) {
-    Column(
+    LazyColumn(
         modifier = Modifier
             .padding(12.dp)
     ) {
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 128.dp))
-        {
+
             items(productList) { movie ->
                 PlantCard(movie, onClick = {
                     navController.navigate("detail_screen?product=${Gson().toJson(it)}")
                 },
-                    addToCart = {addToCart(movie)})
+                    delete = {delete(movie)})
             }
-        }
+
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PlantCard(product: Product, onClick: (product: Product) -> Unit = {},
-              addToCart: (product: Product) -> Unit = {}) {
+              delete: (product: Product) -> Unit = {}) {
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -160,17 +157,17 @@ fun PlantCard(product: Product, onClick: (product: Product) -> Unit = {},
             onClick(product)
         }
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .padding(8.dp)
                 .fillMaxWidth(),
         ) {
             AsyncImage(
                 modifier = Modifier
-                    .width(100.dp)
-                    .height(100.dp)
+                    .width(80.dp)
+                    .height(80.dp)
                     .clip(shape = RoundedCornerShape(6.dp))
-                    .align(Alignment.CenterHorizontally),
+                    .align(Alignment.CenterVertically),
                 model = ImageRequest.Builder(LocalContext.current)
                     .data("https://freshfoodretailers.com/admin/product_image/${product.img_url}")
                     .crossfade(true)
@@ -181,20 +178,17 @@ fun PlantCard(product: Product, onClick: (product: Product) -> Unit = {},
 
                 )
 
-            Text(
-                modifier = Modifier.padding(start = 8.dp),
-                text = product.product_name,
-                style = MaterialTheme.typography.h6,
-                color = DarkTextColor,
-            )
-
-            Row(modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically) {
-
+            Column(Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center) {
+                Text(
+                    modifier = Modifier.padding(start = 8.dp),
+                    text = product.product_name,
+                    style = MaterialTheme.typography.h6,
+                    color = DarkTextColor,
+                )
                 Column(
                     Modifier
-                        .padding(8.dp)
-                        .weight(1f)) {
+                        .padding(8.dp)) {
                     Text(
                         text = product.weight,
                         color = Color.Gray,
@@ -207,18 +201,26 @@ fun PlantCard(product: Product, onClick: (product: Product) -> Unit = {},
                         color = DarkTextColor,
                     )
                 }
+            }
+            Column {
                 Button(
-                    onClick = {addToCart(product)},
-                    shape = RoundedCornerShape(23.dp),
+                    onClick = { delete(product) },
+                    shape = RoundedCornerShape(13.dp),
                     border = BorderStroke(2.dp, DarkTextColor),
-                    colors = ButtonDefaults.buttonColors( backgroundColor = DarkTextColor)
+                    colors = ButtonDefaults.buttonColors(backgroundColor = DarkTextColor)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Add,
+                        imageVector = Icons.Default.Delete,
                         contentDescription = null,
                         tint = Color.White,
                     )
                 }
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "Qty ${product.count.toInt()+1}",
+                    style = MaterialTheme.typography.h6,
+                    color = DarkTextColor,
+                )
             }
         }
     }

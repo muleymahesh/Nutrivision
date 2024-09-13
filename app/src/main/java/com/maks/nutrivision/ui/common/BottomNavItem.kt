@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -17,17 +18,19 @@ data class BottomNavItem(
 val bottomNavItems = listOf(
     BottomNavItem(
         name = "Home",
-        route = "home",
+        route = Screen.Dashboard.route,
         icon = Icons.Rounded.Home,
+
     ),
-    BottomNavItem(
-        name = "Categories",
-        route = "category",
-        icon = Icons.Rounded.Menu,
-    ),
+
     BottomNavItem(
         name = "Cart",
-        route = "cart",
+        route = Screen.Cart.route,
         icon = Icons.Rounded.ShoppingCart,
     ),
-)
+    BottomNavItem(
+        name = "Profile",
+        route = Screen.Profile.route,
+        icon = Icons.Rounded.Person,
+    ),
+    )

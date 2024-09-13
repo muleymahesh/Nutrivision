@@ -18,3 +18,9 @@ val md_theme_dark_onPrimary = Color(0xFF213600)
 val md_theme_dark_primaryContainer = Color(0xFF324F00)
 // ..
 // ..
+
+val TextColor = Color(0xFF1D1617)
+val AccentColor = Color(0xFFC58BF2)
+val GrayColor = Color(0xFF7B6F72)
+val WhiteColor = Color(0xFFFFFFFF)
+val BgColor = Color(0xFFF7F8F8)

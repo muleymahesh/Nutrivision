@@ -1,13 +1,12 @@
-package com.maks.nutrivision.ui.home
+package com.maks.nutrivision.ui.cart
 
 import com.maks.nutrivision.data.entities.Banner
 import com.maks.nutrivision.data.entities.Category
 import com.maks.nutrivision.data.entities.Product
 
-data class HomeState(
+data class CartState(
     val isLoading: Boolean = false,
     val products: List<Product> = emptyList(),
-    val categories: List<Category> = emptyList(),
     val error: String = ""
 
 )
