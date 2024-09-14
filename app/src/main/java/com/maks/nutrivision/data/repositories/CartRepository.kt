@@ -1,5 +1,6 @@
 package com.maks.nutrivision.data.repositories
 
+import android.util.Log
 import com.maks.nutrivision.data.entities.Product
 import com.maks.nutrivision.data.local.ProductDao
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +16,8 @@ interface CartRepository{
 }
 class CartRepositoryImpl @Inject constructor(val productDao: ProductDao): CartRepository {
     override suspend fun insertProduct(product: Product){
-        productDao.insertProduct(product)
+       val id =  productDao.insertProduct(product)
+       Log.d("TAG", "insertProduct: $id")
     }
 
     override suspend fun getAllProducts()= withContext(Dispatchers.IO){

@@ -67,7 +67,7 @@ import com.maks.nutrivision.ui.theme.Secondary
 import com.maks.nutrivision.ui.theme.TextColor
 
 @Composable
-fun NormalTextComponent(value: String) {
+fun NormalTextComponent(value: String, textColor: Color = TextColor) {
     Text(
         text = value,
         modifier = Modifier
@@ -78,7 +78,7 @@ fun NormalTextComponent(value: String) {
             fontWeight = FontWeight.Normal,
             fontStyle = FontStyle.Normal
         ),
-        color = TextColor,
+        color = textColor,
         textAlign = TextAlign.Center
     )
 }

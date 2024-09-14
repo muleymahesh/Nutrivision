@@ -30,7 +30,7 @@ val bottomNavItems = listOf(
     ),
     BottomNavItem(
         name = "Profile",
-        route = Screen.Profile.route,
+        route = Screen.Login.route,
         icon = Icons.Rounded.Person,
     ),
     )

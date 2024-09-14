@@ -11,6 +11,7 @@ import com.maks.nutrivision.data.repositories.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,8 +25,9 @@ class UserViewModel@Inject constructor(val authRepository: AuthRepository) :View
 
     fun getAllUsers() {
         viewModelScope.launch {
-            _profileList.value = authRepository.getAllUsers()
-            Log.e(",,",_profileList.value.toString())
+            val list = authRepository.getAllUsers()
+            _profileList.getAndUpdate { list }
+            Log.e(",@@@@@,",_profileList.value.toString())
         }
     }
 
@@ -56,12 +58,13 @@ class UserViewModel@Inject constructor(val authRepository: AuthRepository) :View
         lname: String,
         email: String,
         password: String,
-        mobile: String
+        mobile: String,
+        address: String=""
     ) {
         viewModelScope.launch {
             try {
                 _authState.value = AuthState(isLoading = true,null)
-                val response = authRepository.signup(SignupRequest("signup", fname = fname, lname = lname, email =  email, password = password, mobile = mobile, device_token=""))
+                val response = authRepository.signup(SignupRequest("signup", fname = fname, lname = lname, email =  email, password = password, mobile = mobile, device_token="",address = address))
                 _authState.value = AuthState(false, response)
                 if (response.result?.contains("success") == true){
                     action

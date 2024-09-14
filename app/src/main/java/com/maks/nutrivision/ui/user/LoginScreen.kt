@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -125,11 +126,22 @@ fun LoginScreen(navController: NavHostController, userViewModel: UserViewModel =
                 fontFamily = FontFamily.Default
             )
         )
-        val users = userViewModel.profileList.collectAsState()
-        if (users.value.isNotEmpty()) {
+        val users = userViewModel.authState.collectAsState()
+        if (users.value.response?.result?.contains("success") == true) {
             navController.popBackStack()
+            navController.navigate(Screen.Profile.route)
         }
-    }
+        val profileList = userViewModel.profileList.collectAsState()
+        if (profileList.value.isNotEmpty()) {
+            navController.popBackStack()
+            navController.navigate(Screen.Profile.route)
+        }
+        if (users.value.isLoading) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+
+        }    }
 }
 
 @Composable

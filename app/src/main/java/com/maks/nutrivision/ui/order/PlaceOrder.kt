@@ -1,4 +1,4 @@
-package com.maks.nutrivision.ui.cart
+package com.maks.nutrivision.ui.order
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -32,6 +32,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,30 +54,23 @@ import coil.request.ImageRequest
 import com.google.gson.Gson
 import com.maks.nutrivision.R
 import com.maks.nutrivision.data.entities.Product
-import com.maks.nutrivision.ui.ProductViewModel
-import com.maks.nutrivision.ui.common.BottomBar
-import com.maks.nutrivision.ui.common.NormalTextComponent
-import com.maks.nutrivision.ui.common.Screen
+import com.maks.nutrivision.ui.cart.CartViewModel
 import com.maks.nutrivision.ui.theme.AppBg
 import com.maks.nutrivision.ui.theme.DarkTextColor
 import com.maks.nutrivision.ui.theme.Primary
+import com.maks.nutrivision.ui.user.UserViewModel
 
 
 @Composable
-fun CartScreen(navController: NavHostController ,
-               viewModel: CartViewModel = hiltViewModel(),
-               productViewModel: ProductViewModel = hiltViewModel()
+fun PlaceOrderScreen(navController: NavHostController ,
+                     userViewModel: UserViewModel = hiltViewModel(),
+               viewModel: CartViewModel = hiltViewModel()
 ) {
     LaunchedEffect(key1 = true) {
+        userViewModel.getAllUsers()
         viewModel.getCartProducts()
     }
-    val state = viewModel.cart.observeAsState()
-
-    if(state.value?.isNotEmpty() == true){
-        LaunchedEffect(key1 = true) {
-
-        }
-    }
+    val user = userViewModel.profileList.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -93,24 +87,12 @@ fun CartScreen(navController: NavHostController ,
                 )
             }
         },
-        bottomBar = {
-            Column {
-                val total = state.value?.sumOf { it.mrp.toInt()*(it.count+1) }
-                NormalTextComponent(value = "Total : ${total?:0}")
-                OutlinedButton(
-                    onClick = { navController.navigate(Screen.PlceOrder.route) },
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Primary)
-                ) {
-                    Text(
-                        text = "Checkout",
-                        color = Color.White,
-                        style = TextStyle(fontSize = 20.sp)
-                    )
-                }
-            } }
+        bottomBar = { OutlinedButton(onClick = { viewModel },
+            Modifier
+                .fillMaxWidth()
+                .padding(8.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Primary)) {
+            Text(text = "Place Order" , color = Color.White, style = TextStyle(fontSize = 20.sp))
+        } }
     ) { contentPadding ->
         Box(
             Modifier
@@ -121,6 +103,7 @@ fun CartScreen(navController: NavHostController ,
                 .padding(contentPadding)
         ) {
 
+            val state = viewModel.cart.observeAsState()
             state.value?.let {
                 if (it.isNullOrEmpty())
                     Column(
@@ -138,7 +121,8 @@ fun CartScreen(navController: NavHostController ,
                     }
                     else
                 MainContent(navController, it,
-                    {viewModel.deleteProduct(it) }
+                    {viewModel.deleteProduct(it) },
+                    user.value.firstOrNull()?.address ?:""
                 )
             }
         }
@@ -150,18 +134,24 @@ fun CartScreen(navController: NavHostController ,
 fun MainContent(
     navController: NavController,
     productList: List<Product>,
-    delete: (product: Product) -> Unit = {}
+    delete: (product: Product) -> Unit = {},
+    address: String
 ) {
     LazyColumn(
         modifier = Modifier
             .padding(12.dp)
     ) {
-
-            items(productList) { product ->
-                PlantCard(product, onClick = {
+            item {
+                Text(text = "Delivering to:")
+            }
+        item {
+                Text(text = address)
+            }
+            items(productList) { movie ->
+                PlantCard(movie, onClick = {
                     navController.navigate("detail_screen?product=${Gson().toJson(it)}")
                 },
-                    delete = {delete(product)})
+                    delete = {delete(movie)})
             }
 
     }

@@ -1,5 +1,7 @@
 package com.maks.nutrivision.ui.home
 import android.annotation.SuppressLint
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -27,15 +29,19 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarResult
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,6 +70,8 @@ import com.maks.nutrivision.ui.common.bottomNavItems
 import com.maks.nutrivision.ui.theme.AppBg
 import com.maks.nutrivision.ui.theme.DarkTextColor
 import com.maks.nutrivision.ui.theme.Primary
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
@@ -73,7 +81,12 @@ fun HomeScreen(navController: NavHostController,
 LaunchedEffect(key1 = true) {
     viewModel.getProducts(cat_id)
 }
+    val scaffoldState = rememberScaffoldState() // this contains the `SnackbarHostState`
+    val coroutineScope = rememberCoroutineScope()
+
+    val context = LocalContext.current
     Scaffold(
+        scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
                 backgroundColor = Primary,
@@ -101,7 +114,18 @@ bottomBar = { BottomBar(navController = navController) }
         ) {
 
             val state = viewModel.state.value
-            MainContent(navController, state.products, {viewModel.addToCart(it)})
+            MainContent(context,navController, state.products
+            ) {
+                viewModel.addToCart(it)
+                coroutineScope.launch {
+                    // using the `coroutineScope` to `launch` showing the snackbar
+                    // taking the `snackbarHostState` from the attached `scaffoldState`
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        message = "Item added to cart",
+                        actionLabel = "Close"
+                    )
+                }
+            }
             if (state.error.isNotBlank()) {
                 Text(
                     text = state.error,
@@ -123,6 +147,7 @@ bottomBar = { BottomBar(navController = navController) }
 
 @Composable
 fun MainContent(
+    context: Context,
     navController: NavController,
     productList: List<Product>,
     addToCart: (product: Product) -> Unit = {}
@@ -134,11 +159,11 @@ fun MainContent(
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 128.dp))
         {
-            items(productList) { movie ->
-                PlantCard(movie, onClick = {
-                    navController.navigate("detail_screen?product=${Gson().toJson(it)}")
+            items(productList) { product ->
+                PlantCard(product, onClick = {
+                    //navController.navigate("detail_screen?product=${Gson().toJson(it)}")
                 },
-                    addToCart = {addToCart(movie)})
+                    addToCart = {addToCart(product) })
             }
         }
     }

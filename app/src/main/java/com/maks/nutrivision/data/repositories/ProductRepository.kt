@@ -8,6 +8,7 @@ import javax.inject.Inject
 
 interface ProductRepository{
     suspend fun getProducts(cat_id: String?): List<Product>
+    suspend fun getProductsByIds(p_ids: String?): List<Product>
     suspend fun getBanners(): HomeScreenData
 }
 class ProductRepositoryImpl @Inject constructor(
@@ -17,6 +18,10 @@ class ProductRepositoryImpl @Inject constructor(
         return apiService.getProducts(RequestParam("get_all_product")).data
         else
         return apiService.getProducts(RequestParam("get_product_by_cat",cat_id=cat_id ?: "")).data
+    }
+
+    override suspend fun getProductsByIds(p_ids: String?): List<Product> {
+        return apiService.getProducts(RequestParam("get_product_by_ids",p_ids=p_ids ?: "")).data
     }
 
     override suspend fun getBanners(): HomeScreenData {

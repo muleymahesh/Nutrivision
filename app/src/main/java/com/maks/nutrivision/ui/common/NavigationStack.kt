@@ -10,6 +10,7 @@ import com.maks.nutrivision.ui.cart.CartScreen
 import com.maks.nutrivision.ui.dashboard.DashboardScreen
 import com.maks.nutrivision.ui.detail.DetailScreen
 import com.maks.nutrivision.ui.home.HomeScreen
+import com.maks.nutrivision.ui.order.PlaceOrderScreen
 import com.maks.nutrivision.ui.user.LoginScreen
 import com.maks.nutrivision.ui.user.ProfileScreen
 import com.maks.nutrivision.ui.user.SignupScreen
@@ -57,6 +58,9 @@ fun NavigationStack() {
         }
         composable(route = Screen.Profile.route) {
             ProfileScreen(navController = navController)
+        }
+        composable(route = Screen.PlceOrder.route) {
+            PlaceOrderScreen(navController = navController)
         }
     }
 }

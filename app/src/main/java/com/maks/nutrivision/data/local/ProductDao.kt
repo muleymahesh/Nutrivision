@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -13,8 +14,8 @@ import com.maks.nutrivision.data.entities.Product
 @Dao
 interface ProductDao {
     //create Product
-    @Insert
-    suspend fun insertProduct(product: Product)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertProduct(product: Product): Long
 
     //read Products
     @Query("SELECT * FROM products")

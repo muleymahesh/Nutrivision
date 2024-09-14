@@ -11,5 +11,7 @@ data class Profile(
     val lname: String,
     val mobile: String,
     val order_Count: Int,
-    val user_email: String
+    val user_email: String,
+    val address: String ="",
+
 )

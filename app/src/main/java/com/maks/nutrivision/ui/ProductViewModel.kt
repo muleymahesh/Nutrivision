@@ -64,10 +64,11 @@ class ProductViewModel@Inject constructor(val productRepository: ProductReposito
         }
     }
 
-    suspend fun insertOrUpdate( item:Product): Boolean {
-        val itemsFromDB = cartRepository.getAllProducts().map { it.p_id.equals(item.p_id) }.isEmpty()
-        if (itemsFromDB)
+    private suspend fun insertOrUpdate(item:Product): Boolean {
+        val itemsFromDB = cartRepository.getAllProducts().filter { it.p_id.equals(item.p_id) }
+        if (itemsFromDB.isEmpty())
             cartRepository.insertProduct(item)
+
         else {
             item.count+=1
             cartRepository.updateProduct(item)

@@ -18,8 +18,8 @@ interface AuthRepository{
     suspend fun getAllUsers(): List<Profile>
 }
 class AuthRepositoryImpl @Inject constructor(
-    val apiService: ApiService,
-    val userDao: UserDao): AuthRepository {
+    private val apiService: ApiService,
+    private val userDao: UserDao): AuthRepository {
     override suspend fun login(loginRequest: LoginRequest): AuthResponse {
     return apiService.login(loginRequest)
     }

@@ -10,13 +10,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Phone
+import androidx.compose.material.icons.outlined.Pin
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Surface
@@ -53,7 +56,10 @@ fun SignupScreen(navController: NavHostController,
             .background(Color.White)
             .padding(28.dp)
     ) {
-        Box {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())) {
             val state =  userViewModel.authState.collectAsState(initial = AuthState(false,null))
 
             Column(
@@ -68,6 +74,7 @@ fun SignupScreen(navController: NavHostController,
                 val email = remember { mutableStateOf(String()) }
                 val mobile = remember { mutableStateOf(String()) }
                 val password = remember { mutableStateOf(String()) }
+                val address = remember { mutableStateOf(String()) }
 
                 Column {
                     MyTextFieldComponent(
@@ -97,6 +104,10 @@ fun SignupScreen(navController: NavHostController,
                         labelValue = "Password",
                         icon = Icons.Outlined.Lock, onValueChange = { password.value = it }
                     )
+                    MyTextFieldComponent(
+                        labelValue = "Address",
+                        icon = Icons.Outlined.Pin, onValueChange = { address.value = it }
+                    )
                     CheckboxComponent()
                     Spacer(modifier = Modifier.height(20.dp))
                     Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
@@ -110,7 +121,8 @@ fun SignupScreen(navController: NavHostController,
                                     lname = lname.value,
                                     email = email.value,
                                     mobile = mobile.value,
-                                    password = password.value
+                                    password = password.value,
+                                    address = address.value
                                 )
                             },
                             shape = RoundedCornerShape(50.dp),

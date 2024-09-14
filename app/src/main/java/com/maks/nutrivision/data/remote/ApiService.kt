@@ -11,6 +11,9 @@ import retrofit2.http.POST
 interface ApiService {
     @POST("newapi.php")
     suspend fun getProducts(@Body request: RequestParam): ProductResonse
+
+    @POST("newapi.php")
+    suspend fun getProductsByIds(@Body request: RequestParam): ProductResonse
     @POST("newapi.php")
     suspend fun getBanners(@Body requestParam: RequestParam): BannerResponse
 
