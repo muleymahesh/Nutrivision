@@ -11,6 +11,14 @@ data class SignupRequest(
     val device_token: String,
     val address: String
 )
-data class AuthResponse(val result: String, val responseMessage: String,val fname: String,
-val lname: String, val mobile: String, val order_Count: Int, val user_email: String, val user_id: String
+data class AuthResponse(
+    val result: String,
+    val responseMessage: String,
+    val fname: String,
+    val lname: String,
+    val mobile: String,
+    val order_Count: Int,
+    val user_email: String,
+    val user_id: String,
+    val address: String
 )

@@ -1,6 +1,6 @@
 package com.maks.nutrivision.ui.order
 
-import androidx.compose.foundation.BorderStroke
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,9 +16,9 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -29,11 +29,9 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,23 +52,22 @@ import coil.request.ImageRequest
 import com.google.gson.Gson
 import com.maks.nutrivision.R
 import com.maks.nutrivision.data.entities.Product
-import com.maks.nutrivision.ui.cart.CartViewModel
 import com.maks.nutrivision.ui.theme.AppBg
 import com.maks.nutrivision.ui.theme.DarkTextColor
 import com.maks.nutrivision.ui.theme.Primary
-import com.maks.nutrivision.ui.user.UserViewModel
 
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun PlaceOrderScreen(navController: NavHostController ,
-                     userViewModel: UserViewModel = hiltViewModel(),
-               viewModel: CartViewModel = hiltViewModel()
+               viewModel: PlaceOrderViewModel = hiltViewModel()
 ) {
+    val state = viewModel.state.collectAsState(PlaceOrderState())
+
     LaunchedEffect(key1 = true) {
-        userViewModel.getAllUsers()
+        viewModel.getAllUsers()
         viewModel.getCartProducts()
     }
-    val user = userViewModel.profileList.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -102,10 +99,7 @@ fun PlaceOrderScreen(navController: NavHostController ,
                 )
                 .padding(contentPadding)
         ) {
-
-            val state = viewModel.cart.observeAsState()
-            state.value?.let {
-                if (it.isNullOrEmpty())
+                if (state.value.productList.isNullOrEmpty())
                     Column(
                         Modifier
                             .fillMaxSize()
@@ -120,13 +114,30 @@ fun PlaceOrderScreen(navController: NavHostController ,
                         )
                     }
                     else
-                MainContent(navController, it,
-                    {viewModel.deleteProduct(it) },
-                    user.value.firstOrNull()?.address ?:""
-                )
+                    Column(modifier = Modifier
+                        .fillMaxSize(1f)
+                        .padding(16.dp)) {
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = "Delivering to:",
+                            style = MaterialTheme.typography.h6,
+                            color = DarkTextColor,
+                        )
+                       Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = state.value.address,
+                            style = MaterialTheme.typography.h6,
+                            color = DarkTextColor,
+                        )
+                        MainContent(
+                            navController, state.value.productList,
+                        )
+                    }
+            if (state.value.isLoading){
+                CircularProgressIndicator()
+            }
             }
         }
-    }
 }
 
 
@@ -134,24 +145,15 @@ fun PlaceOrderScreen(navController: NavHostController ,
 fun MainContent(
     navController: NavController,
     productList: List<Product>,
-    delete: (product: Product) -> Unit = {},
-    address: String
 ) {
     LazyColumn(
-        modifier = Modifier
-            .padding(12.dp)
+
     ) {
-            item {
-                Text(text = "Delivering to:")
-            }
-        item {
-                Text(text = address)
-            }
+
             items(productList) { movie ->
                 PlantCard(movie, onClick = {
                     navController.navigate("detail_screen?product=${Gson().toJson(it)}")
-                },
-                    delete = {delete(movie)})
+                })
             }
 
     }
@@ -160,7 +162,7 @@ fun MainContent(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PlantCard(product: Product, onClick: (product: Product) -> Unit = {},
-              delete: (product: Product) -> Unit = {}) {
+              ) {
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -219,18 +221,7 @@ fun PlantCard(product: Product, onClick: (product: Product) -> Unit = {},
                 }
             }
             Column {
-                Button(
-                    onClick = { delete(product) },
-                    shape = RoundedCornerShape(13.dp),
-                    border = BorderStroke(2.dp, DarkTextColor),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = DarkTextColor)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = null,
-                        tint = Color.White,
-                    )
-                }
+
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = "Qty ${product.count.toInt()+1}",

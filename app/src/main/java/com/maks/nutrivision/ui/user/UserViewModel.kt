@@ -9,6 +9,7 @@ import com.maks.nutrivision.data.entities.Profile
 import com.maks.nutrivision.data.entities.SignupRequest
 import com.maks.nutrivision.data.repositories.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.getAndUpdate
@@ -43,11 +44,11 @@ class UserViewModel@Inject constructor(val authRepository: AuthRepository) :View
                 _authState.value =AuthState(response = response)
 
             } catch (e: Exception) {
-                _authState.value = AuthState(isLoading = false, response = AuthResponse("error", e.message ?: "Unknown error","","","",0,"",""))
+                _authState.value = AuthState(isLoading = false, response = AuthResponse("error", e.message ?: "Unknown error","","","",0,"","",""))
             }
         }
     }
-    fun insertUser(user: AuthResponse) {
+    private fun insertUser(user: AuthResponse) {
         viewModelScope.launch {
             authRepository.insertUser(user)
         }
@@ -61,7 +62,7 @@ class UserViewModel@Inject constructor(val authRepository: AuthRepository) :View
         mobile: String,
         address: String=""
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 _authState.value = AuthState(isLoading = true,null)
                 val response = authRepository.signup(SignupRequest("signup", fname = fname, lname = lname, email =  email, password = password, mobile = mobile, device_token="",address = address))
@@ -70,7 +71,7 @@ class UserViewModel@Inject constructor(val authRepository: AuthRepository) :View
                     action
                 }
             } catch (e: Exception) {
-                _authState.value = AuthState(false,AuthResponse("error", e.message ?: "Unknown error","","","",0,"",""))
+                _authState.value = AuthState(false,AuthResponse("error", e.message ?: "Unknown error","","","",0,"","",""))
             }
         }
     }
