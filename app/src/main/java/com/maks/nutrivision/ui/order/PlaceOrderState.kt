@@ -7,5 +7,7 @@ data class PlaceOrderState(
     val productList: List<Product> = listOf(),
     val address: String = "",
     val mobile: String = "",
-    val name: String = ""
+    val name: String = "",
+    val email: String = "",
+    val id: String = "",
 )

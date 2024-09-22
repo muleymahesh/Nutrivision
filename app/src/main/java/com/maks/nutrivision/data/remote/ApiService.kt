@@ -3,6 +3,7 @@ package com.maks.nutrivision.data.remote
 import com.maks.nutrivision.data.entities.AuthResponse
 import com.maks.nutrivision.data.entities.BannerResponse
 import com.maks.nutrivision.data.entities.LoginRequest
+import com.maks.nutrivision.data.entities.PlaceOrderResponse
 import com.maks.nutrivision.data.entities.ProductResonse
 import com.maks.nutrivision.data.entities.SignupRequest
 import retrofit2.http.Body
@@ -22,4 +23,7 @@ interface ApiService {
 
     @POST("newapi.php")
     suspend fun signup(@Body request: SignupRequest): AuthResponse
+
+    @POST("newapi.php")
+    suspend fun placeOrder(@Body request: PlaceOrderParams): PlaceOrderResponse
 }

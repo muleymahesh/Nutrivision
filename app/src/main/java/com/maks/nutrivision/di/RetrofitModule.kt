@@ -42,7 +42,7 @@ object RetrofitModule {
     // Games
     @Provides
     @ViewModelScoped
-    fun provideGameApi(retrofit: Retrofit): ApiService {
+    fun provideAppApi(retrofit: Retrofit): ApiService {
         return retrofit.create(ApiService::class.java)
     }
 
@@ -54,8 +54,8 @@ object RetrofitModule {
     }
     @Provides
     @ViewModelScoped
-    fun provideCartRepository( productDao: ProductDao): CartRepository {
-        return CartRepositoryImpl(productDao)  // Or however you create an instance of GameRepository
+    fun provideCartRepository( productDao: ProductDao,apiService: ApiService): CartRepository {
+        return CartRepositoryImpl(productDao, apiService)  // Or however you create an instance of GameRepository
     }
 
     @Provides
