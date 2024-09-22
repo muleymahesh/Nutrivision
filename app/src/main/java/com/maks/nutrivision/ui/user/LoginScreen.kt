@@ -52,6 +52,7 @@ fun LoginScreen(navController: NavHostController, userViewModel: UserViewModel =
         userViewModel.getAllUsers()
     }
     val scaffoldState = rememberScaffoldState() // this contains the `SnackbarHostState`
+    val users = userViewModel.authState
 
         Column(
             Modifier
@@ -133,11 +134,10 @@ fun LoginScreen(navController: NavHostController, userViewModel: UserViewModel =
                 fontFamily = FontFamily.Default
             )
         )
-        val users = userViewModel.authState.collectAsState()
-        if (users.value.response?.result?.contains("success") == true) {
+        if (users.response?.result?.contains("success") == true) {
             navController.popBackStack()
             navController.navigate(Screen.Profile.route)
-        }else if (users.value.response?.result?.contains("fail") == true) {
+        }else if (users.response?.result?.contains("fail") == true) {
             Toast.makeText(context,"Invalid Credentials",Toast.LENGTH_SHORT).show()
         }
 
@@ -146,7 +146,7 @@ fun LoginScreen(navController: NavHostController, userViewModel: UserViewModel =
             navController.popBackStack()
             navController.navigate(Screen.Profile.route)
         }
-        if (users.value.isLoading) {
+        if (users.isLoading) {
             Box(modifier = Modifier.fillMaxSize()) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }

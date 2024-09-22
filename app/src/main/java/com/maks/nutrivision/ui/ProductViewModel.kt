@@ -1,5 +1,9 @@
 package com.maks.nutrivision.ui
 
+import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,10 +17,17 @@ import com.maks.nutrivision.ui.home.HomeState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 @HiltViewModel
 class ProductViewModel@Inject constructor(val productRepository: ProductRepository, val cartRepository: CartRepository) : ViewModel() {
+
+ var state by mutableStateOf(HomeState())
+    private set
 
     private val _banners = MutableLiveData<List<Banner>>()
     val banner: LiveData<List<Banner>>
@@ -32,19 +43,16 @@ class ProductViewModel@Inject constructor(val productRepository: ProductReposito
     val cart: LiveData<List<Product>>
         get() = _cart
 
-    private val _state = MutableStateFlow(HomeState())
-    val state: StateFlow<HomeState> = _state
-
     fun getProducts(cat_id: String?) {
         viewModelScope.launch {
             try {
-                _state.value = HomeState(isLoading = true)
+                state = state.copy(isLoading = true)
 
                 val result = productRepository.getProducts(cat_id)
-                _state.value = HomeState(products = result)
+                state = state.copy(isLoading = false,products = result)
 
             }catch (e:Exception){
-                _state.value = HomeState(error = e.message.toString())
+                state = state.copy(isLoading = false,error = e.message.toString())
             }
 
         }
@@ -53,8 +61,7 @@ class ProductViewModel@Inject constructor(val productRepository: ProductReposito
     fun getBanner() {
         viewModelScope.launch {
             val result = productRepository.getBanners()
-            _banners.postValue(result.bannnerList)
-            _categories.postValue(result.categoryList)
+            state = state.copy(banners = result.bannnerList,categories = result.categoryList,isLoading = false)
         }
     }
 
@@ -64,17 +71,21 @@ class ProductViewModel@Inject constructor(val productRepository: ProductReposito
         }
     }
 
-    private suspend fun insertOrUpdate(item:Product): Boolean {
-        val itemsFromDB = cartRepository.getAllProducts().filter { it.p_id.equals(item.p_id) }
-        if (itemsFromDB.isEmpty())
-            cartRepository.insertProduct(item)
+    private fun insertOrUpdate(item:Product) {
+        viewModelScope.launch {
+            val result = cartRepository.getAllProducts().first()
 
-        else {
-            item.count+=1
-            cartRepository.updateProduct(item)
+                val item1 = result.firstOrNull { it.p_id == item.p_id }
+                if (item1 == null) {
+                    cartRepository.insertProduct(item)
+                    Log.d("TAG", "inserted")
+                } else {
+                    item1.count += 1
+                    cartRepository.updateProduct(item1)
+                    Log.d("TAG", "updated")
+
+                }
+
+            }
         }
-        return true
-    }
-
-
 }

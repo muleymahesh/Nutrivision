@@ -21,4 +21,9 @@ data class AuthResponse(
     val user_email: String,
     val user_id: String,
     val address: String
-)
+){
+    fun toProfile(): Profile{
+        return Profile(user_id,fname,lname,mobile,order_Count,user_email,address)
+    }
+
+}

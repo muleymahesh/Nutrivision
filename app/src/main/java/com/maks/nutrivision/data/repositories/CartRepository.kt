@@ -4,12 +4,13 @@ import android.util.Log
 import com.maks.nutrivision.data.entities.Product
 import com.maks.nutrivision.data.local.ProductDao
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 interface CartRepository{
     suspend fun insertProduct(Product: Product)
-    suspend fun getAllProducts(): List<Product>
+    fun getAllProducts(): Flow<List<Product>>
     suspend fun updateProduct(Product: Product)
     suspend fun deleteProduct(Product: Product)
     suspend fun deleteAll()
@@ -20,9 +21,7 @@ class CartRepositoryImpl @Inject constructor(val productDao: ProductDao): CartRe
        Log.d("TAG", "insertProduct: $id")
     }
 
-    override suspend fun getAllProducts()= withContext(Dispatchers.IO){
-         productDao.getAllProducts()
-    }
+    override fun getAllProducts()=  productDao.getAllProducts()
 
     override suspend fun updateProduct(product: Product) {
         productDao.updateQuantity(product.p_id)

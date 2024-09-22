@@ -14,11 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -30,8 +28,6 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,7 +35,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -52,6 +47,7 @@ import coil.request.ImageRequest
 import com.google.gson.Gson
 import com.maks.nutrivision.R
 import com.maks.nutrivision.data.entities.Product
+import com.maks.nutrivision.ui.common.NormalTextComponent
 import com.maks.nutrivision.ui.theme.AppBg
 import com.maks.nutrivision.ui.theme.DarkTextColor
 import com.maks.nutrivision.ui.theme.Primary
@@ -59,15 +55,11 @@ import com.maks.nutrivision.ui.theme.Primary
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
-fun PlaceOrderScreen(navController: NavHostController ,
-               viewModel: PlaceOrderViewModel = hiltViewModel()
+fun OrderAddressScreen(navController: NavHostController,
+                       viewModel: PlaceOrderViewModel = hiltViewModel()
 ) {
-    val state = viewModel.state.collectAsState(PlaceOrderState())
+    val state = viewModel.state
 
-    LaunchedEffect(key1 = true) {
-        viewModel.getAllUsers()
-        viewModel.getCartProducts()
-    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -77,7 +69,7 @@ fun PlaceOrderScreen(navController: NavHostController ,
                 IconButton(onClick = { navController.popBackStack()}) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, "", tint = Color.White)                     }
                 Text(
-                    text = stringResource(R.string.app_name),
+                    text = "Checkout",
                     color = Color.White,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
@@ -88,7 +80,7 @@ fun PlaceOrderScreen(navController: NavHostController ,
             Modifier
                 .fillMaxWidth()
                 .padding(8.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Primary)) {
-            Text(text = "Place Order" , color = Color.White, style = TextStyle(fontSize = 20.sp))
+            Text(modifier = Modifier.padding(8.dp), text = "Place Order" , color = Color.White, style = TextStyle(fontSize = 20.sp))
         } }
     ) { contentPadding ->
         Box(
@@ -99,45 +91,105 @@ fun PlaceOrderScreen(navController: NavHostController ,
                 )
                 .padding(contentPadding)
         ) {
-                if (state.value.productList.isNullOrEmpty())
-                    Column(
-                        Modifier
-                            .fillMaxSize()
-                            .align(Alignment.Center)
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.Center) {
-                        Text(
+
+            LazyColumn(modifier = Modifier
+                .fillMaxSize(1f)
+                .padding(16.dp)) {
+                item {
+                    Card(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        shape = RoundedCornerShape(10.dp),
+                        elevation = 3.dp,
+                        backgroundColor = AppBg
+
+                    ) {
+                        Column(modifier = Modifier.padding(start = 16.dp),
+                        ) {
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Text(
+                                modifier = Modifier.padding(start = 8.dp),
+                                text = "Delivering to:",
+                                style = MaterialTheme.typography.body1,
+                                color = DarkTextColor,
+                            )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                modifier = Modifier.padding(start = 8.dp),
+                                text = state.name,
+                                style = MaterialTheme.typography.h6,
+                                color = Color.Black,
+                            )
+                            Text(
                             modifier = Modifier.padding(start = 8.dp),
-                            text = "Your Cart is empty. Add some products to proceed to checkout",
-                            style = MaterialTheme.typography.h6,
-                            color = DarkTextColor,
+                            text = state.address,
+                            style = MaterialTheme.typography.body1,
+                            color = Color.Black,
                         )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                modifier = Modifier.padding(start = 8.dp),
+                                text = "Contact. ${state.mobile}",
+                                style = MaterialTheme.typography.body1,
+                                color = Color.Gray,
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                        }
                     }
-                    else
-                    Column(modifier = Modifier
-                        .fillMaxSize(1f)
-                        .padding(16.dp)) {
-                        Text(
-                            modifier = Modifier.padding(start = 8.dp),
-                            text = "Delivering to:",
-                            style = MaterialTheme.typography.h6,
-                            color = DarkTextColor,
-                        )
-                       Text(
-                            modifier = Modifier.padding(start = 8.dp),
-                            text = state.value.address,
-                            style = MaterialTheme.typography.h6,
-                            color = DarkTextColor,
-                        )
-                        MainContent(
-                            navController, state.value.productList,
-                        )
+                }
+                item { MainContent(navController = navController, productList = state.productList) }
+
+                item { Spacer(
+                    modifier = Modifier.height(36.dp),
+                ) }
+                item {
+                    val total = state.productList?.sumOf { it.mrp.toInt()*(it.count+1) }
+                    NormalTextComponent(value = "Total amount :Rs. ${total?:0}")
+                }
+                item {
+                    Card(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        shape = RoundedCornerShape(10.dp),
+                        elevation = 3.dp,
+                        backgroundColor = AppBg
+
+                    ) {
+                        Column(modifier = Modifier.padding(start = 16.dp),
+                        ) {
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Text(
+                                modifier = Modifier.padding(start = 8.dp),
+                                text = "Payment Mothod:",
+                                style = MaterialTheme.typography.body1,
+                                color = DarkTextColor,
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                modifier = Modifier.padding(start = 8.dp),
+                                text = "CASH ON DELIVERY",
+                                style = MaterialTheme.typography.h6,
+                                color = Color.Black,
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                        }
                     }
-            if (state.value.isLoading){
-                CircularProgressIndicator()
-            }
+                }
+
             }
         }
+    }
 }
 
 
@@ -146,15 +198,14 @@ fun MainContent(
     navController: NavController,
     productList: List<Product>,
 ) {
-    LazyColumn(
+    Column(
 
     ) {
-
-            items(productList) { movie ->
-                PlantCard(movie, onClick = {
-                    navController.navigate("detail_screen?product=${Gson().toJson(it)}")
-                })
-            }
+        productList.forEach { movie ->
+            PlantCard(movie, onClick = {
+                navController.navigate("detail_screen?product=${Gson().toJson(it)}")
+            })
+        }
 
     }
 }
@@ -162,7 +213,7 @@ fun MainContent(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PlantCard(product: Product, onClick: (product: Product) -> Unit = {},
-              ) {
+) {
     Card(
         modifier = Modifier
             .padding(8.dp)

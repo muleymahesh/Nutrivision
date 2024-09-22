@@ -9,13 +9,14 @@ import com.maks.nutrivision.data.entities.SignupRequest
 import com.maks.nutrivision.data.local.UserDao
 import com.maks.nutrivision.data.remote.ApiService
 import com.maks.nutrivision.data.remote.RequestParam
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 interface AuthRepository{
     suspend fun login(loginRequest: LoginRequest):AuthResponse
     suspend fun signup(signupRequest: SignupRequest): AuthResponse
     suspend fun insertUser(user: AuthResponse)
-    suspend fun getAllUsers(): List<Profile>
+    fun getAllUsers(): Flow<List<Profile>>
 }
 class AuthRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
@@ -31,7 +32,5 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun insertUser(user: AuthResponse) {
         userDao.insertUser(Profile(user_id = user.user_id,user.fname,user.lname,user.mobile,user.order_Count,user.user_email, address = user.address))
     }
-    override suspend fun getAllUsers(): List<Profile> {
-        return userDao.getAllUsers()
-    }
+    override fun getAllUsers(): Flow<List<Profile>> = userDao.getAllUsers()
 }

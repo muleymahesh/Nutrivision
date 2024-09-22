@@ -78,12 +78,13 @@ import kotlinx.coroutines.launch
 fun HomeScreen(navController: NavHostController,
                cat_id: String? = null,
                viewModel: ProductViewModel = hiltViewModel()) {
-LaunchedEffect(key1 = true) {
-    viewModel.getProducts(cat_id)
-}
+
     val scaffoldState = rememberScaffoldState() // this contains the `SnackbarHostState`
     val coroutineScope = rememberCoroutineScope()
-
+    val state = viewModel.state
+   LaunchedEffect (key1 = true){
+       viewModel.getProducts(cat_id)
+   }
     val context = LocalContext.current
     Scaffold(
         scaffoldState = scaffoldState,
@@ -113,7 +114,6 @@ bottomBar = { BottomBar(navController = navController) }
                 .padding(contentPadding)
         ) {
 
-            val state = viewModel.state.value
             MainContent(context,navController, state.products
             ) {
                 viewModel.addToCart(it)

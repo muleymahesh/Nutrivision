@@ -8,6 +8,7 @@ data class HomeState(
     val isLoading: Boolean = false,
     val products: List<Product> = emptyList(),
     val categories: List<Category> = emptyList(),
+    val banners: List<Banner> = emptyList(),
     val error: String = ""
 
 )

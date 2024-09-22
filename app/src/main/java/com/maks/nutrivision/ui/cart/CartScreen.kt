@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -31,8 +32,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,7 +53,6 @@ import com.google.gson.Gson
 import com.maks.nutrivision.R
 import com.maks.nutrivision.data.entities.Product
 import com.maks.nutrivision.ui.ProductViewModel
-import com.maks.nutrivision.ui.common.BottomBar
 import com.maks.nutrivision.ui.common.NormalTextComponent
 import com.maks.nutrivision.ui.common.Screen
 import com.maks.nutrivision.ui.theme.AppBg
@@ -67,16 +65,8 @@ fun CartScreen(navController: NavHostController ,
                viewModel: CartViewModel = hiltViewModel(),
                productViewModel: ProductViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(key1 = true) {
-        viewModel.getCartProducts()
-    }
-    val state = viewModel.cart.observeAsState()
+    val state = viewModel.state
 
-    if(state.value?.isNotEmpty() == true){
-        LaunchedEffect(key1 = true) {
-
-        }
-    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -95,7 +85,7 @@ fun CartScreen(navController: NavHostController ,
         },
         bottomBar = {
             Column {
-                val total = state.value?.sumOf { it.mrp.toInt()*(it.count+1) }
+                val total = state.products?.sumOf { it.mrp.toInt()*(it.count+1) }
                 NormalTextComponent(value = "Total : ${total?:0}")
                 OutlinedButton(
                     onClick = { navController.navigate(Screen.PlceOrder.route) },
@@ -104,7 +94,7 @@ fun CartScreen(navController: NavHostController ,
                         .padding(8.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = Primary)
                 ) {
-                    Text(
+                    Text(modifier = Modifier.padding(8.dp),
                         text = "Checkout",
                         color = Color.White,
                         style = TextStyle(fontSize = 20.sp)
@@ -121,25 +111,12 @@ fun CartScreen(navController: NavHostController ,
                 .padding(contentPadding)
         ) {
 
-            state.value?.let {
-                if (it.isNullOrEmpty())
-                    Column(
-                        Modifier
-                            .fillMaxSize()
-                            .align(Alignment.Center)
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.Center) {
-                        Text(
-                            modifier = Modifier.padding(start = 8.dp),
-                            text = "Your Cart is empty. Add some products to proceed to checkout",
-                            style = MaterialTheme.typography.h6,
-                            color = DarkTextColor,
-                        )
-                    }
-                    else
-                MainContent(navController, it,
-                    {viewModel.deleteProduct(it) }
-                )
+            if (state.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else{
+
+                MainContent(navController, state.products
+                ) { viewModel.deleteProduct(it) }
             }
         }
     }

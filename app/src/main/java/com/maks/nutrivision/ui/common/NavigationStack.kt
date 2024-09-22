@@ -1,5 +1,6 @@
 package com.maks.nutrivision.ui.common
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -10,14 +11,17 @@ import com.maks.nutrivision.ui.cart.CartScreen
 import com.maks.nutrivision.ui.dashboard.DashboardScreen
 import com.maks.nutrivision.ui.detail.DetailScreen
 import com.maks.nutrivision.ui.home.HomeScreen
-import com.maks.nutrivision.ui.order.PlaceOrderScreen
+import com.maks.nutrivision.ui.order.OrderAddressScreen
 import com.maks.nutrivision.ui.user.LoginScreen
 import com.maks.nutrivision.ui.user.ProfileScreen
 import com.maks.nutrivision.ui.user.SignupScreen
+import com.maks.nutrivision.ui.user.UserViewModel
 
 @Composable
 fun NavigationStack() {
     val navController = rememberNavController()
+    val userViewModel: UserViewModel = hiltViewModel()
+    val authState = userViewModel.authState
 
     NavHost(navController = navController, startDestination = Screen.Splash.route) {
         composable(route = Screen.Splash.route) {
@@ -57,10 +61,18 @@ fun NavigationStack() {
             SignupScreen(navController = navController)
         }
         composable(route = Screen.Profile.route) {
-            ProfileScreen(navController = navController)
+            if (!authState.isLogged) {
+                LoginScreen(navController = navController)
+            } else {
+                ProfileScreen(navController = navController)
+            }
         }
         composable(route = Screen.PlceOrder.route) {
-            PlaceOrderScreen(navController = navController)
+            if (!authState.isLogged) {
+                LoginScreen(navController = navController)
+            } else {
+                OrderAddressScreen(navController = navController)
+            }
         }
     }
 }

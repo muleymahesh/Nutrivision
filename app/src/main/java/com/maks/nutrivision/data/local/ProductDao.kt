@@ -9,6 +9,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.maks.nutrivision.data.entities.Product
+import kotlinx.coroutines.flow.Flow
 
 
 @Dao
@@ -19,7 +20,7 @@ interface ProductDao {
 
     //read Products
     @Query("SELECT * FROM products")
-    fun getAllProducts(): List<Product>
+    fun getAllProducts(): Flow<List<Product>>
 
     //update Product
     @Update

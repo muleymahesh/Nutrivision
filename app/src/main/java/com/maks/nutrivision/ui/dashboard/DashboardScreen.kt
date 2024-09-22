@@ -71,6 +71,7 @@ import kotlinx.coroutines.delay
 fun DashboardScreen(navController: NavHostController,
                     viewModel: ProductViewModel = hiltViewModel()
 ) {
+    val state = viewModel.state
     LaunchedEffect(key1 = true) {
         viewModel.getBanner()
     }
@@ -100,11 +101,9 @@ fun DashboardScreen(navController: NavHostController,
                 .padding(contentPadding)
         ) {
 
-            val banners = viewModel.banner.observeAsState()
-            val categories = viewModel.category.observeAsState()
-            MainContent(navController, banners.value ?: listOf(),categories.value ?: listOf())
+            MainContent(navController, state.banners ?: listOf(),state.categories ?: listOf())
 
-            if (banners.value.isNullOrEmpty()) {
+            if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         }

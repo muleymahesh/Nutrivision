@@ -1,6 +1,9 @@
 package com.maks.nutrivision.ui.user
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.maks.nutrivision.data.entities.AuthResponse
@@ -12,6 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,32 +23,38 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel@Inject constructor(val authRepository: AuthRepository) :ViewModel() {
 
-    private val _authState = MutableStateFlow<AuthState>(AuthState(false,null))
-    val authState: StateFlow<AuthState> = _authState
+    var authState by mutableStateOf(AuthState(false,null))
+        private set
     val _profileList = MutableStateFlow<List<Profile>>(emptyList())
     val profileList: StateFlow<List<Profile>> = _profileList
 
+    init {
+        getAllUsers()
+    }
     fun getAllUsers() {
         viewModelScope.launch {
-            val list = authRepository.getAllUsers()
-            _profileList.getAndUpdate { list }
-            Log.e(",@@@@@,",_profileList.value.toString())
+            val list = authRepository.getAllUsers().collectLatest {
+                _profileList.getAndUpdate { it }
+                it.firstOrNull().let { profile ->
+                    authState = authState.copy(isLoading = false, isLogged = true, profile = profile)
+                }
+            }
+
         }
     }
-
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
             try {
-                _authState.value = AuthState(isLoading = true ,null)
+                authState = authState.copy(isLoading = true ,null)
                 val response = authRepository.login(LoginRequest("login",email, password))
                 if (response.result?.contains("success") == true){
                     insertUser(response)
+                    authState = authState.copy(isLoading = false, response = response , isLogged = true, profile = response.toProfile())
                 }
-                _authState.value =AuthState(response = response)
 
             } catch (e: Exception) {
-                _authState.value = AuthState(isLoading = false, response = AuthResponse("error", e.message ?: "Unknown error","","","",0,"","",""))
+                authState = authState.copy(isLoading = false, response = AuthResponse("error", e.message ?: "Unknown error","","","",0,"","",""))
             }
         }
     }
@@ -64,14 +74,14 @@ class UserViewModel@Inject constructor(val authRepository: AuthRepository) :View
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                _authState.value = AuthState(isLoading = true,null)
+                authState = authState.copy(isLoading = true,null)
                 val response = authRepository.signup(SignupRequest("signup", fname = fname, lname = lname, email =  email, password = password, mobile = mobile, device_token="",address = address))
-                _authState.value = AuthState(false, response)
+                authState = authState.copy(false, response)
                 if (response.result?.contains("success") == true){
                     action
                 }
             } catch (e: Exception) {
-                _authState.value = AuthState(false,AuthResponse("error", e.message ?: "Unknown error","","","",0,"","",""))
+                authState = authState.copy(false,AuthResponse("error", e.message ?: "Unknown error","","","",0,"","",""))
             }
         }
     }

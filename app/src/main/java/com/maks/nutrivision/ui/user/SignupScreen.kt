@@ -49,6 +49,8 @@ import com.maks.nutrivision.ui.theme.Primary
 @Composable
 fun SignupScreen(navController: NavHostController,
                  userViewModel: UserViewModel = hiltViewModel()) {
+    val state =  userViewModel.authState
+
     Surface(
         color = Color.White,
         modifier = Modifier
@@ -60,7 +62,6 @@ fun SignupScreen(navController: NavHostController,
             Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())) {
-            val state =  userViewModel.authState.collectAsState(initial = AuthState(false,null))
 
             Column(
                 modifier = Modifier.fillMaxSize()
@@ -141,10 +142,10 @@ fun SignupScreen(navController: NavHostController,
                     }
                 }
             }
-            if (state.value.isLoading) {
+            if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
-            if (state.value.response?.result?.contains("success")==true) {
+            if (state.response?.result?.contains("success")==true) {
                 Toast.makeText(LocalContext.current, "User registration Successful", Toast.LENGTH_SHORT).show()
                 navController.navigate(Screen.Login.route)
             }

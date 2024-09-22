@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.maks.nutrivision.data.entities.Profile
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserDao {
@@ -13,5 +14,5 @@ interface UserDao {
     suspend fun insertUser(user: Profile)
 
     @Query("SELECT * FROM users")
-    suspend fun getAllUsers(): List<Profile>
+    fun getAllUsers(): Flow<List<Profile>>
 }

@@ -47,10 +47,8 @@ import com.maks.nutrivision.ui.theme.Primary
 @Composable
 fun ProfileScreen(navController: NavHostController,
                   userViewModel: UserViewModel = hiltViewModel()) {
-    LaunchedEffect(key1 = true) {
-        userViewModel.getAllUsers()
-    }
-    val profile = userViewModel.profileList.collectAsState()
+
+    val state = userViewModel.authState
 
     androidx.compose.material.Scaffold(
         topBar = {
@@ -101,7 +99,7 @@ fun ProfileScreen(navController: NavHostController,
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                profile.value.firstOrNull()?.let { NormalTextComponent(value = "Welcome ${it.fname}", textColor = Color.White) }
+                state.profile?.let { NormalTextComponent(value = "Welcome ${it.fname}", textColor = Color.White) }
             }
             LazyColumn( ){
                 item {
