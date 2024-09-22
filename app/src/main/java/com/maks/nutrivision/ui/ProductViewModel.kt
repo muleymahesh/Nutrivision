@@ -29,16 +29,6 @@ class ProductViewModel@Inject constructor(val productRepository: ProductReposito
  var state by mutableStateOf(HomeState())
     private set
 
-    private val _banners = MutableLiveData<List<Banner>>()
-    val banner: LiveData<List<Banner>>
-        get() = _banners
-
-    private val _categories = MutableLiveData<List<Category>>()
-    val category: LiveData<List<Category>>
-        get() = _categories
-    private val _products = MutableLiveData<List<Product>>()
-    val product: LiveData<List<Product>>
-        get() = _products
  private val _cart = MutableLiveData<List<Product>>()
     val cart: LiveData<List<Product>>
         get() = _cart

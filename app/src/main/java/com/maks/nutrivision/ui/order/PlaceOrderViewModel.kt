@@ -6,11 +6,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.maks.nutrivision.data.entities.Product
 import com.maks.nutrivision.data.remote.PlaceOrderParams
 import com.maks.nutrivision.data.repositories.AuthRepository
 import com.maks.nutrivision.data.repositories.CartRepository
 import com.maks.nutrivision.data.repositories.ProductRepository
+import com.maks.nutrivision.ui.common.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -70,7 +72,7 @@ init {
             }
         }
     }
-    private fun placeOrder() {
+    fun placeOrder(navHostController: NavHostController) {
         viewModelScope.launch(Dispatchers.IO) {
             var p_ids = ""
             var qty = ""
@@ -96,7 +98,11 @@ init {
                     qty = qty,
                     shipping_type = "CASH ON DELIVERY",
                     user_id = "${state.id}"))
+            if (result.result.equals("success")) {
+                cartRepository.deleteAll()
+                viewModelScope.launch(Dispatchers.Main) { navHostController.navigate(Screen.OrderSuccess.route)
+                }
+            }
         }
-
     }
 }

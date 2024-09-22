@@ -82,7 +82,7 @@ fun HomeScreen(navController: NavHostController,
     val scaffoldState = rememberScaffoldState() // this contains the `SnackbarHostState`
     val coroutineScope = rememberCoroutineScope()
     val state = viewModel.state
-   LaunchedEffect (key1 = true){
+    LaunchedEffect (key1 = true){
        viewModel.getProducts(cat_id)
    }
     val context = LocalContext.current

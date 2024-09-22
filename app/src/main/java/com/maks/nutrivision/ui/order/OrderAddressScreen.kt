@@ -66,7 +66,8 @@ fun OrderAddressScreen(navController: NavHostController,
                 backgroundColor = Primary,
                 elevation = 16.dp
             ) {
-                IconButton(onClick = { navController.popBackStack()}) {
+                IconButton(onClick = { navController.popBackStack()
+                    navController.popBackStack()}) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, "", tint = Color.White)                     }
                 Text(
                     text = "Checkout",
@@ -76,7 +77,7 @@ fun OrderAddressScreen(navController: NavHostController,
                 )
             }
         },
-        bottomBar = { OutlinedButton(onClick = { viewModel },
+        bottomBar = { OutlinedButton(onClick = { viewModel.placeOrder(navController) },
             Modifier
                 .fillMaxWidth()
                 .padding(8.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Primary)) {
