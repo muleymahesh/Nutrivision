@@ -87,7 +87,9 @@ fun OrderSuccessScreen(navController: NavHostController
               OutlinedButton(
                     onClick = { 
                         navController.popBackStack()
-                              navController.popBackStack()},
+                              navController.popBackStack()
+                              navController.popBackStack()
+                              },
                   Modifier
                       .fillMaxWidth()
                       .padding(8.dp),

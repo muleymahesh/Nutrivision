@@ -13,15 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,13 +44,16 @@ import com.maks.nutrivision.ui.common.Screen
 
 
 @Composable
-fun LoginScreen(navController: NavHostController, userViewModel: UserViewModel = hiltViewModel()) {
-    LaunchedEffect(key1 = true) {
-        userViewModel.getAllUsers()
-    }
-    val scaffoldState = rememberScaffoldState() // this contains the `SnackbarHostState`
-    val users = userViewModel.authState
-
+fun LoginScreen(
+    navController: NavHostController,
+    userViewModel: UserViewModel = hiltViewModel(),
+    deliveryCharges: Int =0,
+    handlingCharges: Int = 0
+) {
+        val users = userViewModel.authState
+        if (users.isLogged){
+            navController.popBackStack()
+        }
         Column(
             Modifier
                 .background(Color.White)
@@ -93,6 +93,7 @@ fun LoginScreen(navController: NavHostController, userViewModel: UserViewModel =
         Spacer(modifier = Modifier.height(20.dp))
         OutlinedTextFieldBackground(Color.White) {
             OutlinedTextField(
+                textStyle = TextStyle(color = Color.Black),
                 label = { Text(text = "Email/mobile") },
                 value = username.value,
                 onValueChange = { username.value = it })
@@ -101,6 +102,7 @@ fun LoginScreen(navController: NavHostController, userViewModel: UserViewModel =
         Spacer(modifier = Modifier.height(20.dp))
         OutlinedTextFieldBackground(Color.White) {
             OutlinedTextField(
+                textStyle = TextStyle(color = Color.Black),
                 label = { Text(text = "Password") },
                 value = password.value,
                 visualTransformation = PasswordVisualTransformation(),
@@ -134,10 +136,10 @@ fun LoginScreen(navController: NavHostController, userViewModel: UserViewModel =
                 fontFamily = FontFamily.Default
             )
         )
-        if (users.response?.result?.contains("success") == true) {
+        if (users.errorMsg.contains("success") == true) {
             navController.popBackStack()
             navController.navigate(Screen.Profile.route)
-        }else if (users.response?.result?.contains("fail") == true) {
+        }else if (users.errorMsg.contains("fail") == true) {
             Toast.makeText(context,"Invalid Credentials",Toast.LENGTH_SHORT).show()
         }
 

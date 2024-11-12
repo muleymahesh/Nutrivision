@@ -4,6 +4,7 @@ data class RequestParam (
     val method: String,
     val cat_id: String = "",
     val p_ids: String = "",
+    val user_id: String = "",
 )
 data class PlaceOrderParams(
     val amount: String,
@@ -17,5 +18,6 @@ data class PlaceOrderParams(
     val price: String,
     val qty: String,
     val shipping_type: String,
-    val user_id: String
+    val user_id: String,
+    val opt_name: String
 )

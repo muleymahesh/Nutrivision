@@ -66,7 +66,6 @@ import com.maks.nutrivision.ui.theme.DarkTextColor
 import com.maks.nutrivision.ui.theme.Primary
 import kotlinx.coroutines.delay
 
-@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun DashboardScreen(navController: NavHostController,
                     viewModel: ProductViewModel = hiltViewModel()
@@ -144,12 +143,12 @@ fun MainContent(
         Text(
             modifier = Modifier.padding(start = 16.dp),
             text = "Categories",
-            style = MaterialTheme.typography.h5,
+            style = MaterialTheme.typography.h6,
             color = DarkTextColor,
         )
         LazyVerticalGrid(
             modifier = Modifier.heightIn(max = 1000.dp),
-            columns = GridCells.Adaptive(128.dp),
+            columns = GridCells.Fixed(2),
 
             // content padding
             contentPadding = PaddingValues(
@@ -162,7 +161,7 @@ fun MainContent(
                 items(categoryList) { cat ->
                     Box(modifier = Modifier.padding(6.dp)) {
                         PlantCard(cat.cat_name, cat.cat_img, onClick = {
-                            navController.navigate("${Screen.Main.route}?cat=${cat.cat_id}}")
+                            navController.navigate("${Screen.Main.route}?cat=${cat.cat_id}")
                         })
                     }
                 }
@@ -193,13 +192,13 @@ Box(contentAlignment = Alignment.BottomCenter) {
     Row(
         Modifier
             .fillMaxWidth(1f)
-            .background(Color.White),
+            .background(Color.White).padding(8.dp),
         horizontalArrangement = Arrangement.Center
             ) {
         Text(
-            modifier = Modifier.padding(start = 16.dp),
+            modifier = Modifier.padding(start = 8.dp),
             text = name,
-            style = MaterialTheme.typography.h6,
+            style = MaterialTheme.typography.body1,
             color = DarkTextColor,
         )
     }

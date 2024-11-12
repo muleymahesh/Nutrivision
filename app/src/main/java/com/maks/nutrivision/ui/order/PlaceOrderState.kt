@@ -1,5 +1,6 @@
 package com.maks.nutrivision.ui.order
 
+import com.maks.nutrivision.data.entities.Order
 import com.maks.nutrivision.data.entities.Product
 
 data class PlaceOrderState(
@@ -10,4 +11,11 @@ data class PlaceOrderState(
     val name: String = "",
     val email: String = "",
     val id: String = "",
+    val pincode: String = "",
 )
+
+data class MyOrderState(
+    val isLoading: Boolean=false,
+    val orderList: List<Order> = listOf(),
+
+    )

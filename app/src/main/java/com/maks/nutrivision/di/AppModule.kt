@@ -3,6 +3,7 @@ package com.maks.nutrivision.di
 import android.content.Context
 import androidx.room.Room
 import com.maks.nutrivision.data.local.AppDatabase
+import com.maks.nutrivision.data.local.CartDao
 import com.maks.nutrivision.data.local.ProductDao
 import com.maks.nutrivision.data.local.UserDao
 import dagger.Module
@@ -34,5 +35,9 @@ class AppModule {
     @Provides
     fun provideUserDao(database: AppDatabase): UserDao {
         return database.userDao()
+    }
+    @Provides
+    fun provideCartDao(database: AppDatabase): CartDao {
+        return database.cartDao()
     }
 }

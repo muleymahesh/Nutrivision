@@ -1,6 +1,5 @@
 package com.maks.nutrivision.ui.cart
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
@@ -30,7 +28,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +51,7 @@ import com.google.gson.Gson
 import com.maks.nutrivision.R
 import com.maks.nutrivision.data.entities.Product
 import com.maks.nutrivision.ui.ProductViewModel
+import com.maks.nutrivision.ui.common.CounterButton
 import com.maks.nutrivision.ui.common.NormalTextComponent
 import com.maks.nutrivision.ui.common.Screen
 import com.maks.nutrivision.ui.theme.AppBg
@@ -85,13 +84,17 @@ fun CartScreen(navController: NavHostController ,
         },
         bottomBar = {
             Column {
-                val total = state.products?.sumOf { it.mrp.toInt()*(it.count+1) }
+                val total = state.products?.sumOf { it.getPrice().toInt()*(it.getSelectedCount()) }
+                HorizontalDivider(thickness = 2.dp, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),)
                 NormalTextComponent(value = "Total : ${total?:0}")
                 OutlinedButton(
-                    onClick = { navController.navigate(Screen.PlceOrder.route) },
+                    onClick = {
+                        if(state.products?.isNotEmpty() == true)  navController.navigate("${Screen.PlceOrder.route}?deliverycharges=${state.deliveryCharges}&handlingcharges=${state.handlingCharges}") },
                     Modifier
                         .fillMaxWidth()
-                        .padding(8.dp),
+                        .padding(4.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = Primary)
                 ) {
                     Text(modifier = Modifier.padding(8.dp),
@@ -112,11 +115,16 @@ fun CartScreen(navController: NavHostController ,
         ) {
 
             if (state.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    NormalTextComponent(value = "My Cart")
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                }
             } else{
-
                 MainContent(navController, state.products
-                ) { viewModel.deleteProduct(it) }
+                , removeFromCart = { productViewModel.removeFromCart(it) },
+                   addToCart =  { product: Product, i: Int ->  productViewModel.addToCart(product,i) }
+                )
             }
         }
     }
@@ -127,18 +135,19 @@ fun CartScreen(navController: NavHostController ,
 fun MainContent(
     navController: NavController,
     productList: List<Product>,
-    delete: (product: Product) -> Unit = {}
+    removeFromCart: (product: Product) -> Unit = {},
+    addToCart: (Product,Int) -> Unit = {product: Product, i: Int -> }
 ) {
     LazyColumn(
         modifier = Modifier
             .padding(12.dp)
     ) {
-
+            item { NormalTextComponent(value = "My Cart") }
             items(productList) { product ->
                 PlantCard(product, onClick = {
                     navController.navigate("detail_screen?product=${Gson().toJson(it)}")
-                },
-                    delete = {delete(product)})
+                }, removeFromCart = removeFromCart,
+                addToCart = { product: Product, i: Int ->  addToCart(product,i)})
             }
 
     }
@@ -146,8 +155,10 @@ fun MainContent(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun PlantCard(product: Product, onClick: (product: Product) -> Unit = {},
-              delete: (product: Product) -> Unit = {}) {
+fun PlantCard(
+    product: Product, onClick: (product: Product) -> Unit = {},
+    removeFromCart: (product: Product) -> Unit = {},
+    addToCart: (Product, Int) -> Unit = { product: Product, i: Int -> }) {
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -193,34 +204,33 @@ fun PlantCard(product: Product, onClick: (product: Product) -> Unit = {},
                     Modifier
                         .padding(8.dp)) {
                     Text(
-                        text = product.weight,
+                        text = product.getNamedWeight(),
                         color = Color.Gray,
                         style = MaterialTheme.typography.h6,
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "₹ ${product.mrp}",
+                        text = "₹ ${product.getPrice().toInt()*product.getSelectedCount()}",
                         style = MaterialTheme.typography.h6,
                         color = DarkTextColor,
                     )
                 }
             }
-            Column {
-                Button(
-                    onClick = { delete(product) },
-                    shape = RoundedCornerShape(13.dp),
-                    border = BorderStroke(2.dp, DarkTextColor),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = DarkTextColor)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = null,
-                        tint = Color.White,
-                    )
-                }
-                Spacer(modifier = Modifier.height(10.dp))
+            Column(horizontalAlignment = Alignment.End,
+            modifier = Modifier.padding(end = 8.dp)) {
+                Spacer(modifier = Modifier.height(10.dp).padding(end = 16.dp))
+
+                CounterButton(onValueDecreaseClick = { removeFromCart(product) },
+                    onValueIncreaseClick = { addToCart(product,product.selectedIndex) },
+                    onValueClearClick = { /*TODO*/ },
+                    value = "${product.getSelectedCount()}",
+                    modifier = Modifier
+                        .width(140.dp)
+                        .height(40.dp)
+                )
+                Spacer(modifier = Modifier.height(30.dp).padding(end = 16.dp))
                 Text(
-                    text = "Qty ${product.count.toInt()+1}",
+                    text = "Qty ${product.getSelectedCount()}",
                     style = MaterialTheme.typography.h6,
                     color = DarkTextColor,
                 )

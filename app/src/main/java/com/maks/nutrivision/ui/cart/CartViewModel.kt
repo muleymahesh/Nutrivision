@@ -1,5 +1,6 @@
 package com.maks.nutrivision.ui.cart
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.maks.nutrivision.data.entities.CartItem
 import com.maks.nutrivision.data.entities.Product
 import com.maks.nutrivision.data.repositories.CartRepository
 import com.maks.nutrivision.data.repositories.ProductRepository
@@ -26,48 +28,37 @@ class CartViewModel@Inject constructor(val cartRepository: CartRepository, val p
     fun getCartProducts() {
         viewModelScope.launch {
             var p_ids =""
-            cartRepository.getAllProducts().collectLatest {
-                if (it.isNotEmpty()) {
-                it.forEach {
-                    p_ids = p_ids.plus(it.p_id).plus(",")
+            try {
+                cartRepository.getAllCartItems().collectLatest {
+                    if (it.isNotEmpty()) {
+                        val list = mutableListOf<Product>()
+
+                        it.forEach {
+                            Log.e("@@@@@",it.selectedIndex.toString())
+                            p_ids = p_ids.plus(it.p_id).plus(",")
+                        }
+                        val productResponse =
+                            productRepository.getProductsByIds(p_ids.substring(0, p_ids.length - 1))
+                        for (p in it) {
+                            productResponse.data.find { product -> p.p_id == product.p_id }
+                                ?.let { pro->
+                                    list.add(pro.copy(opt1_count = p.opt1_count,opt2_count = p.opt2_count,opt3_count = p.opt3_count, selectedIndex = p.selectedIndex))
+                                }
+                        }
+                        state = state.copy(isLoading = false, products = list, deliveryCharges = productResponse.delivery_charges, handlingCharges = productResponse.handling_charges)
+                    } else {
+                        state = state.copy(isLoading = false, products = listOf())
+                    }
                 }
-                val products = productRepository.getProductsByIds(p_ids.substring(0,p_ids.length-1))
-                val list = mutableListOf<Product>()
-                for (p in products) {
-                    it.find { it.p_id == p.p_id }?.let { list.add( p.copy(count = it.count))}
-                }
-                state = state.copy(isLoading = false,products = list)
-                }
-                else {
-                    state = state.copy(isLoading = false,products = it)
-                }
+            }catch (e: Exception){
+                e.printStackTrace()
             }
         }
     }
 
-    fun addToCart(product: Product) {
-        viewModelScope.launch {
-            insertOrUpdate(product)
-        }
-    }
-
-    suspend fun insertOrUpdate( item:Product): Boolean {
-        cartRepository.getAllProducts().collectLatest {
-            val isinCart = it.find { it.p_id == item.p_id } != null
-            if (!isinCart)
-                cartRepository.insertProduct(item)
-            else {
-                item.count+=1
-                cartRepository.updateProduct(item)
-            }
-        }
-
-        return true
-    }
-
-    fun deleteProduct(product: Product) {
-        viewModelScope.launch { cartRepository.deleteProduct(product)
-            getCartProducts()
-        }
-    }
+//    fun deleteProduct(product: Product) {
+//        viewModelScope.launch { cartRepository.deleteCartItem(CartItem(p_id = product.p_id, count = 1, selectedIndex = 0)) }
+//            getCartProducts()
+//        }
+//    }
 }

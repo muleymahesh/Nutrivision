@@ -74,7 +74,7 @@ fun NormalTextComponent(value: String, textColor: Color = TextColor) {
             .fillMaxWidth()
             .heightIn(min = 40.dp),
         style = TextStyle(
-            fontSize = 24.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.Normal,
             fontStyle = FontStyle.Normal
         ),

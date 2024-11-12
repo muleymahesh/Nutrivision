@@ -11,8 +11,10 @@ import com.maks.nutrivision.ui.cart.CartScreen
 import com.maks.nutrivision.ui.dashboard.DashboardScreen
 import com.maks.nutrivision.ui.detail.DetailScreen
 import com.maks.nutrivision.ui.home.HomeScreen
+import com.maks.nutrivision.ui.order.MyOrdersScreen
 import com.maks.nutrivision.ui.order.OrderAddressScreen
 import com.maks.nutrivision.ui.order.OrderSuccessScreen
+import com.maks.nutrivision.ui.user.EditProfileScreen
 import com.maks.nutrivision.ui.user.LoginScreen
 import com.maks.nutrivision.ui.user.ProfileScreen
 import com.maks.nutrivision.ui.user.SignupScreen
@@ -56,27 +58,46 @@ fun NavigationStack() {
         }
 
         composable(route = Screen.Login.route) {
-            LoginScreen(navController = navController)
+            LoginScreen(
+                navController = navController,
+            )
         }
         composable(route = Screen.Register.route) {
             SignupScreen(navController = navController)
         }
         composable(route = Screen.Profile.route) {
             if (!authState.isLogged) {
-                LoginScreen(navController = navController)
+                LoginScreen(
+                    navController = navController,
+                )
             } else {
                 ProfileScreen(navController = navController)
             }
         }
-        composable(route = Screen.PlceOrder.route) {
+        composable(
+            route = "place_order_screen?deliverycharges={deliverycharges}&handlingcharges={handlingcharges}",
+            arguments = listOf(
+                navArgument("deliverycharges") { type = NavType.IntType },
+                navArgument("handlingcharges") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val deliveryCharges = backStackEntry.arguments?.getInt("deliverycharges") ?: 0
+            val handlingCharges = backStackEntry.arguments?.getInt("handlingcharges") ?: 0
+
             if (!authState.isLogged) {
-                LoginScreen(navController = navController)
+                LoginScreen(navController = navController,deliveryCharges = deliveryCharges, handlingCharges = handlingCharges)
             } else {
-                OrderAddressScreen(navController = navController)
+                OrderAddressScreen(navController = navController, deliveryCharges = deliveryCharges,handlingCharges=handlingCharges)
             }
         }
         composable(route = Screen.OrderSuccess.route) {
             OrderSuccessScreen(navController = navController)
+        }
+        composable(route = Screen.EditProfile.route) {
+            EditProfileScreen(navController = navController)
+        }
+        composable(route = Screen.MyOrders.route) {
+            MyOrdersScreen(navController = navController,authState.profile?.user_email?:"")
         }
     }
 }

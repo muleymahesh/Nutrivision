@@ -9,7 +9,9 @@ data class SignupRequest(
     val password: String,
     val mobile: String,
     val device_token: String,
-    val address: String
+    val address: String,
+    val pincode: String
+
 )
 data class AuthResponse(
     val result: String,
@@ -20,10 +22,11 @@ data class AuthResponse(
     val order_Count: Int,
     val user_email: String,
     val user_id: String,
-    val address: String
+    val address: String,
+    val pincode: String
 ){
     fun toProfile(): Profile{
-        return Profile(user_id,fname,lname,mobile,order_Count,user_email,address)
+        return Profile(user_id,fname,lname,mobile,order_Count,user_email,address,pincode = pincode)
     }
 
 }

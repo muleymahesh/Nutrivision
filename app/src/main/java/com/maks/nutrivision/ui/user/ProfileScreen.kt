@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.rounded.AccountBox
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.ShoppingBasket
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +26,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -103,10 +105,16 @@ fun ProfileScreen(navController: NavHostController,
             }
             LazyColumn( ){
                 item {
-                    ListItemWithImage(Icons.Rounded.AccountBox, title = "Edit Profile") {
-
+                    ListItemWithImage(Icons.Rounded.AccountBox, title = "My Profile") {
+                            navController.navigate(Screen.EditProfile.route)
                     }
                     
+                }
+                item {
+                    ListItemWithImage(Icons.Rounded.ShoppingBasket, title = "My Orders") {
+                        navController.navigate(Screen.MyOrders.route)
+                    }
+
                 }
             }
         }
@@ -155,23 +163,26 @@ fun ListItemWithImage(
         Icon(
             imageVector = imageVector, // Replace with your arrow resource
             contentDescription = null,
-            modifier = Modifier.size(48.dp)
+            modifier = Modifier.size(48.dp),
+                    tint = Color.Black
         )
 
         // Title/Label
-            Text(
-                text = title,
-                modifier = Modifier
-                    .weight(0.7f) // Take remaining space
-                    .padding(start = 16.dp),
-                style = MaterialTheme.typography.h5
-            )
+        Text(
+            text = title,
+            modifier = Modifier
+                .weight(0.7f) // Take remaining space
+                .padding(start = 16.dp),
+            style = MaterialTheme.typography.h6.plus(TextStyle(color = Color.Black))
+
+        )
 
         // Trailing Arrow Icon
         Icon(
             imageVector = Icons.Rounded.ChevronRight, // Replace with your arrow resource
             contentDescription = null,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(24.dp),
+            tint = Color.Black
         )
     }
 }

@@ -30,7 +30,7 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertUser(user: AuthResponse) {
-        userDao.insertUser(Profile(user_id = user.user_id,user.fname,user.lname,user.mobile,user.order_Count,user.user_email, address = user.address))
+        userDao.insertUser(user.toProfile())
     }
     override fun getAllUsers(): Flow<List<Profile>> = userDao.getAllUsers()
 }

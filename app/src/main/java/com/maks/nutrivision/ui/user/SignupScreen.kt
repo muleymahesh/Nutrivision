@@ -15,7 +15,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AddLocation
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Phone
@@ -25,7 +27,6 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -49,7 +50,7 @@ import com.maks.nutrivision.ui.theme.Primary
 @Composable
 fun SignupScreen(navController: NavHostController,
                  userViewModel: UserViewModel = hiltViewModel()) {
-    val state =  userViewModel.authState
+    var state =  userViewModel.authState
 
     Surface(
         color = Color.White,
@@ -75,7 +76,9 @@ fun SignupScreen(navController: NavHostController,
                 val email = remember { mutableStateOf(String()) }
                 val mobile = remember { mutableStateOf(String()) }
                 val password = remember { mutableStateOf(String()) }
+                val confirmPassword = remember { mutableStateOf(String()) }
                 val address = remember { mutableStateOf(String()) }
+                val pincode = remember { mutableStateOf(String()) }
 
                 Column {
                     MyTextFieldComponent(
@@ -105,9 +108,17 @@ fun SignupScreen(navController: NavHostController,
                         labelValue = "Password",
                         icon = Icons.Outlined.Lock, onValueChange = { password.value = it }
                     )
+                    PasswordTextFieldComponent(
+                        labelValue = "Confirm Password",
+                        icon = Icons.Outlined.Lock, onValueChange = { confirmPassword.value = it }
+                    )
                     MyTextFieldComponent(
                         labelValue = "Address",
-                        icon = Icons.Outlined.Pin, onValueChange = { address.value = it }
+                        icon = Icons.Outlined.Home, onValueChange = { address.value = it }
+                    )
+                    MyTextFieldComponent(
+                        labelValue = "Pincode",
+                        icon = Icons.Outlined.Pin, onValueChange = { pincode.value = it }
                     )
                     CheckboxComponent()
                     Spacer(modifier = Modifier.height(20.dp))
@@ -123,7 +134,9 @@ fun SignupScreen(navController: NavHostController,
                                     email = email.value,
                                     mobile = mobile.value,
                                     password = password.value,
-                                    address = address.value
+                                    confirmPassword = confirmPassword.value,
+                                    address = address.value,
+                                    pincode = pincode.value
                                 )
                             },
                             shape = RoundedCornerShape(50.dp),
@@ -145,9 +158,12 @@ fun SignupScreen(navController: NavHostController,
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
-            if (state.response?.result?.contains("success")==true) {
+            if (state.errorMsg.contains("success")==true) {
                 Toast.makeText(LocalContext.current, "User registration Successful", Toast.LENGTH_SHORT).show()
                 navController.navigate(Screen.Login.route)
+            }
+            if (state.errorMsg.contains("Error")==true) {
+                Toast.makeText(LocalContext.current, state.errorMsg, Toast.LENGTH_LONG).show()
             }
     }
     }

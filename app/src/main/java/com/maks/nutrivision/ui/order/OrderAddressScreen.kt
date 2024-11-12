@@ -53,9 +53,13 @@ import com.maks.nutrivision.ui.theme.DarkTextColor
 import com.maks.nutrivision.ui.theme.Primary
 
 
+val shippingType: String = "CASH ON DELIVERY"
+var total: Double = 0.0
+
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun OrderAddressScreen(navController: NavHostController,
+                       deliveryCharges: Int,handlingCharges: Int,
                        viewModel: PlaceOrderViewModel = hiltViewModel()
 ) {
     val state = viewModel.state
@@ -77,7 +81,7 @@ fun OrderAddressScreen(navController: NavHostController,
                 )
             }
         },
-        bottomBar = { OutlinedButton(onClick = { viewModel.placeOrder(navController) },
+        bottomBar = { OutlinedButton(onClick = { viewModel.placeOrder(navController, total, shippingType) },
             Modifier
                 .fillMaxWidth()
                 .padding(8.dp), colors = ButtonDefaults.buttonColors(backgroundColor = Primary)) {
@@ -148,10 +152,7 @@ fun OrderAddressScreen(navController: NavHostController,
                 item { Spacer(
                     modifier = Modifier.height(36.dp),
                 ) }
-                item {
-                    val total = state.productList?.sumOf { it.mrp.toInt()*(it.count+1) }
-                    NormalTextComponent(value = "Total amount :Rs. ${total?:0}")
-                }
+
                 item {
                     Card(
                         modifier = Modifier
@@ -166,6 +167,30 @@ fun OrderAddressScreen(navController: NavHostController,
                         Column(modifier = Modifier.padding(start = 16.dp),
                         ) {
                             Spacer(modifier = Modifier.height(16.dp))
+                            total = getCartTotal(state.productList) + handlingCharges
+
+                                Column(horizontalAlignment = Alignment.Start, modifier = Modifier.padding(start = 8.dp)) {
+                                    Text(text = "Delivery charges :₹ ${if(total<400) deliveryCharges else 0.0}",style = MaterialTheme.typography.body1, color = Color.Gray, )
+                                    Text(text = "Handling charges :₹ $handlingCharges",style = MaterialTheme.typography.body1, color = Color.Gray,)
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    if(total<400) {
+                                        total += deliveryCharges
+                                        Text(
+                                            text = "Total amount :₹ ${total}",
+                                            style = MaterialTheme.typography.body1.plus(
+                                                TextStyle(
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            ),
+                                        )
+                                    }else{
+                                        Text(text = "Total amount :₹ ${total}",
+                                            style = MaterialTheme.typography.body1.plus(TextStyle(fontWeight = FontWeight.Bold)),
+                                        )
+                                    }
+                                }
+
+                            Spacer(modifier = Modifier.height(16.dp))
 
                             Text(
                                 modifier = Modifier.padding(start = 8.dp),
@@ -178,7 +203,7 @@ fun OrderAddressScreen(navController: NavHostController,
                             Text(
                                 modifier = Modifier.padding(start = 8.dp),
                                 text = "CASH ON DELIVERY",
-                                style = MaterialTheme.typography.h6,
+                                style = MaterialTheme.typography.body1.plus(TextStyle(fontWeight = FontWeight.Bold)),
                                 color = Color.Black,
                             )
 
@@ -193,18 +218,23 @@ fun OrderAddressScreen(navController: NavHostController,
     }
 }
 
+fun getCartTotal(productList: List<Product>): Double {
+    var total: Double = 0.0
+    productList.forEach {
+        total += it.getPrice().toInt() * it.getSelectedCount().toInt()
+    }
+    return total
+}
 
 @Composable
 fun MainContent(
     navController: NavController,
     productList: List<Product>,
 ) {
-    Column(
-
-    ) {
+    Column{
         productList.forEach { movie ->
             PlantCard(movie, onClick = {
-                navController.navigate("detail_screen?product=${Gson().toJson(it)}")
+                //navController.navigate("detail_screen?product=${Gson().toJson(it)}")
             })
         }
 
@@ -253,21 +283,21 @@ fun PlantCard(product: Product, onClick: (product: Product) -> Unit = {},
                 Text(
                     modifier = Modifier.padding(start = 8.dp),
                     text = product.product_name,
-                    style = MaterialTheme.typography.h6,
+                    style = MaterialTheme.typography.body1.plus(TextStyle(fontWeight = FontWeight.Bold)),
                     color = DarkTextColor,
                 )
                 Column(
                     Modifier
                         .padding(8.dp)) {
                     Text(
-                        text = product.weight,
+                        text = product.getNamedWeight(),
                         color = Color.Gray,
-                        style = MaterialTheme.typography.h6,
-                    )
+                        style = MaterialTheme.typography.body1.plus(TextStyle(fontWeight = FontWeight.Bold)),
+                        )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "₹ ${product.mrp}",
-                        style = MaterialTheme.typography.h6,
+                        text = "₹ ${product.getPrice()}",
+                        style = MaterialTheme.typography.body1.plus(TextStyle(fontWeight = FontWeight.Bold)),
                         color = DarkTextColor,
                     )
                 }
@@ -276,8 +306,8 @@ fun PlantCard(product: Product, onClick: (product: Product) -> Unit = {},
 
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = "Qty ${product.count.toInt()+1}",
-                    style = MaterialTheme.typography.h6,
+                    text = "Qty ${product.getSelectedCount().toInt()}",
+                    style = MaterialTheme.typography.body1.plus(TextStyle(fontWeight = FontWeight.Bold)),
                     color = DarkTextColor,
                 )
             }
