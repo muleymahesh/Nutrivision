@@ -1,6 +1,7 @@
 package com.maks.nutrivision.ui.dashboard
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -259,7 +260,11 @@ fun AutoSlidingCarousel(
 
     LaunchedEffect(pagerState.currentPage) {
         delay(autoSlideDuration)
-        pagerState.animateScrollToPage((pagerState.currentPage + 1) % itemsCount)
+        try {
+            pagerState.animateScrollToPage((pagerState.currentPage + 1) % itemsCount)
+        } catch (e: Exception) {
+            Log.e("","Error in AutoSlidingCarousel: ${e.message}")
+        }
     }
 
     Box(

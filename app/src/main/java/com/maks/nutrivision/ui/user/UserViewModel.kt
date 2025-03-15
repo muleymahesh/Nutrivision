@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.maks.nutrivision.data.entities.AuthResponse
+import com.maks.nutrivision.data.entities.ForgotPasswordRequest
 import com.maks.nutrivision.data.entities.LoginRequest
 import com.maks.nutrivision.data.entities.Profile
 import com.maks.nutrivision.data.entities.SignupRequest
@@ -244,6 +245,33 @@ class UserViewModel@Inject constructor(val authRepository: AuthRepository) :View
                 }
             }
         }
+    }
+
+    fun forgotPassword(email: String ) {
+        viewModelScope.launch {
+            try {
+                authState = authState.copy(isLoading = true, errorMsg = "")
+                val response = authRepository.forgotPassword(ForgotPasswordRequest(email = email, method = "forgot_password", mobile = ""))
+                if (response.result?.contains("success") == true) {
+                    authState = authState.copy(
+                        isLoading = false,
+                        errorMsg = "Your password has been sent to your email address."
+                    )
+                } else {
+                    authState = authState.copy(
+                        isLoading = false,
+                        errorMsg = "Error: Invalid email address"
+                    )
+                }
+
+            } catch (e: Exception) {
+                authState = authState.copy(
+                    isLoading = false,
+                    errorMsg = "Error: Invalid email address"
+                )
+            }
+        }
+
     }
 }
 

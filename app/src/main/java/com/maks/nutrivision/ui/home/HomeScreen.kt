@@ -158,6 +158,16 @@ fun MainContent(
         LazyVerticalGrid(
             columns = GridCells.Fixed(count = 1),)
         {
+            if(productList.isNotEmpty()){
+                item {
+                    Text(
+                        text = "Unable to load products",
+                        style = MaterialTheme.typography.h6.plus(TextStyle(fontWeight = FontWeight.Bold)),
+                        color = DarkTextColor,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
             items(productList) { product ->
                 PlantCard(product, removeFromCart = {
                     removeFromCart(product)

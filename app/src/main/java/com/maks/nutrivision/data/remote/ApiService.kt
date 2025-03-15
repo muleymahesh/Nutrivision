@@ -2,6 +2,7 @@ package com.maks.nutrivision.data.remote
 
 import com.maks.nutrivision.data.entities.AuthResponse
 import com.maks.nutrivision.data.entities.BannerResponse
+import com.maks.nutrivision.data.entities.ForgotPasswordRequest
 import com.maks.nutrivision.data.entities.LoginRequest
 import com.maks.nutrivision.data.entities.MyOrderResponse
 import com.maks.nutrivision.data.entities.PlaceOrderResponse
@@ -21,6 +22,9 @@ interface ApiService {
 
     @POST("newapi.php")
     suspend fun login(@Body request: LoginRequest): AuthResponse
+
+    @POST("newapi.php")
+    suspend fun forgotPassword(@Body request: ForgotPasswordRequest): AuthResponse
 
     @POST("newapi.php")
     suspend fun signup(@Body request: SignupRequest): AuthResponse

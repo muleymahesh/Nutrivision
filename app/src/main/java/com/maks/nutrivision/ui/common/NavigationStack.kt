@@ -1,4 +1,5 @@
 package com.maks.nutrivision.ui.common
+import ForgotPasswordScreen
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
@@ -99,8 +100,13 @@ fun NavigationStack() {
         composable(route = Screen.MyOrders.route) {
             MyOrdersScreen(navController = navController,authState.profile?.user_email?:"")
         }
+        composable(route = Screen.ForgotPassword.route) {
+            ForgotPasswordScreen(navController = navController)
+        }
     }
 }
+
+
 
 
 

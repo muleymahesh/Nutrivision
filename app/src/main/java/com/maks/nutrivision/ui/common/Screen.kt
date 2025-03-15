@@ -14,4 +14,5 @@ sealed class Screen(val route: String) {
     object PlceOrder: Screen("place_order_screen")
     object OrderSuccess: Screen("order_success_screen")
     object MyOrders: Screen("my_orders_screen")
+    object ForgotPassword: Screen("forgot_password_screen")
 }

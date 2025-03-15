@@ -26,6 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -83,6 +85,8 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
             val context = LocalContext.current
+            val keyboardController = LocalSoftwareKeyboardController.current
+        val focusManager = LocalFocusManager.current
         val username = remember { mutableStateOf(TextFieldValue()) }
         val password = remember { mutableStateOf(TextFieldValue()) }
 
@@ -113,7 +117,12 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(20.dp))
         Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
             Button(
-                onClick = { userViewModel.login(email = username.value.text, password = password.value.text)},
+                onClick = {
+                    userViewModel.login(email = username.value.text, password = password.value.text)
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+
+                },
                 shape = RoundedCornerShape(50.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -130,7 +139,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(20.dp))
         ClickableText(
             text = AnnotatedString("Forgot password?"),
-            onClick = { },
+            onClick = { navController.navigate(Screen.ForgotPassword.route) },
             style = androidx.compose.ui.text.TextStyle(
                 fontSize = 14.sp,
                 fontFamily = FontFamily.Default
@@ -139,8 +148,15 @@ fun LoginScreen(
         if (users.errorMsg.contains("success") == true) {
             navController.popBackStack()
             navController.navigate(Screen.Profile.route)
-        }else if (users.errorMsg.contains("fail") == true) {
-            Toast.makeText(context,"Invalid Credentials",Toast.LENGTH_SHORT).show()
+        }else if (users.errorMsg.contains("Error") == true) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+//            Toast.makeText(context,"Invalid Credentials",Toast.LENGTH_SHORT).show()
+            Text(text = "${users.errorMsg}" , style = androidx.compose.ui.text.TextStyle(
+                fontSize = 15.sp,
+                color = Color.Red,
+                fontFamily = FontFamily.Default
+            ))
         }
 
         val profileList = userViewModel.profileList.collectAsState()
@@ -152,6 +168,7 @@ fun LoginScreen(
             Box(modifier = Modifier.fillMaxSize()) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
+
 
         }    }
 }

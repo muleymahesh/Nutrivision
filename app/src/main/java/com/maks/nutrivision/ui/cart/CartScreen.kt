@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -84,7 +85,7 @@ fun CartScreen(navController: NavHostController ,
         },
         bottomBar = {
             Column {
-                val total = state.products?.sumOf { it.getPrice().toInt()*(it.getSelectedCount()) }
+                val total = state.products.sumOf { it.getPrice().toInt()*(it.getSelectedCount()) }
                 HorizontalDivider(thickness = 2.dp, modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),)
@@ -143,9 +144,23 @@ fun MainContent(
             .padding(12.dp)
     ) {
             item { NormalTextComponent(value = "My Cart") }
+        if (productList.isEmpty()) {
+            item {
+                Row (
+                    modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+                    horizontalArrangement = Arrangement.Center){
+                    Text(
+                        text = "Your cart is empty , please add some items", style = TextStyle(
+                            fontSize = 15.sp,
+                            color = Color.Green,
+                            fontFamily = FontFamily.Default
+                        )
+                    )
+                } }
+        }
             items(productList) { product ->
                 PlantCard(product, onClick = {
-                    navController.navigate("detail_screen?product=${Gson().toJson(it)}")
+//                    navController.navigate("detail_screen?product=${Gson().toJson(it)}")
                 }, removeFromCart = removeFromCart,
                 addToCart = { product: Product, i: Int ->  addToCart(product,i)})
             }
@@ -218,17 +233,21 @@ fun PlantCard(
             }
             Column(horizontalAlignment = Alignment.End,
             modifier = Modifier.padding(end = 8.dp)) {
-                Spacer(modifier = Modifier.height(10.dp).padding(end = 16.dp))
+                Spacer(modifier = Modifier
+                    .height(10.dp)
+                    .padding(end = 16.dp))
 
                 CounterButton(onValueDecreaseClick = { removeFromCart(product) },
                     onValueIncreaseClick = { addToCart(product,product.selectedIndex) },
                     onValueClearClick = { /*TODO*/ },
                     value = "${product.getSelectedCount()}",
                     modifier = Modifier
-                        .width(140.dp)
+                        .width(110.dp)
                         .height(40.dp)
                 )
-                Spacer(modifier = Modifier.height(30.dp).padding(end = 16.dp))
+                Spacer(modifier = Modifier
+                    .height(30.dp)
+                    .padding(end = 16.dp))
                 Text(
                     text = "Qty ${product.getSelectedCount()}",
                     style = MaterialTheme.typography.h6,

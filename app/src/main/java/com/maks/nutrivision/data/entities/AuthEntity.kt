@@ -1,6 +1,7 @@
 package com.maks.nutrivision.data.entities
 
 data class LoginRequest(    val method: String, val email: String, val password: String)
+data class ForgotPasswordRequest(val method: String, val email: String, val mobile: String)
 data class SignupRequest(
     val method: String,
     val fname: String,
